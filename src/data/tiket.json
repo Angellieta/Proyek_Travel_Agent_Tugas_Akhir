@@ -1,0 +1,460 @@
+{
+  "airlines": [
+    {
+      "code": "GA",
+      "name": "Garuda Indonesia",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/garuda.png"
+    },
+    {
+      "code": "JT",
+      "name": "Lion Air",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/lion.png"
+    },
+    {
+      "code": "QG",
+      "name": "Citilink",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/citilink.png"
+    },
+    {
+      "code": "ID",
+      "name": "Batik Air",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/batik.png"
+    },
+    {
+      "code": "SJ",
+      "name": "Sriwijaya Air",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/sriwijaya.png"
+    },
+    {
+      "code": "SQ",
+      "name": "Singapore Airlines",
+      "country": "Singapore",
+      "logo": "/assets/img/logo/singapore.png"
+    },
+    {
+      "code": "MH",
+      "name": "Malaysia Airlines",
+      "country": "Malaysia",
+      "logo": "/assets/img/logo/malaysia.png"
+    },
+    {
+      "code": "CX",
+      "name": "Cathay Pacific",
+      "country": "Hong Kong",
+      "logo": "/assets/img/logo/cathay.png"
+    },
+    {
+      "code": "JL",
+      "name": "Japan Airlines",
+      "country": "Japan",
+      "logo": "/assets/img/logo/japan.png"
+    },
+    {
+      "code": "KE",
+      "name": "Korean Air",
+      "country": "South Korea",
+      "logo": "/assets/img/logo/korean.png"
+    },
+    {
+      "code": "CI",
+      "name": "China Airlines",
+      "country": "Taiwan",
+      "logo": "/assets/img/logo/china.png"
+    },
+    {
+      "code": "LH",
+      "name": "Lufthansa",
+      "country": "Germany",
+      "logo": "/assets/img/logo/luthansa.png"
+    },
+    {
+      "code": "AF",
+      "name": "Air France",
+      "country": "France",
+      "logo": "/assets/img/logo/france.png"
+    },
+    {
+      "code": "BA",
+      "name": "British Airways",
+      "country": "United Kingdom",
+      "logo": "/assets/img/logo/british.png"
+    },
+    {
+      "code": "KL",
+      "name": "KLM",
+      "country": "Netherlands",
+      "logo": "/assets/img/logo/klm.png"
+    },
+    {
+      "code": "IB",
+      "name": "Iberia",
+      "country": "Spain",
+      "logo": "/assets/img/logo/iberia.png"
+    },
+    {
+      "code": "AA",
+      "name": "American Airlines",
+      "country": "United States",
+      "logo": "/assets/img/logo/american.png"
+    },
+    {
+      "code": "DL",
+      "name": "Delta Air Lines",
+      "country": "United States",
+      "logo": "/assets/img/logo/delta.png"
+    },
+    {
+      "code": "UA",
+      "name": "United Airlines",
+      "country": "United States",
+      "logo": "/assets/img/logo/united.png"
+    },
+    {
+      "code": "AC",
+      "name": "Air Canada",
+      "country": "Canada",
+      "logo": "/assets/img/logo/canada.png"
+    },
+    {
+      "code": "AM",
+      "name": "Aeromexico",
+      "country": "Mexico",
+      "logo": "/assets/img/logo/aeromexico.png"
+    },
+    {
+      "code": "QF",
+      "name": "Qantas",
+      "country": "Australia",
+      "logo": "/assets/img/logo/qantas.png"
+    },
+    {
+      "code": "JQ",
+      "name": "Jetstar Airways",
+      "country": "Australia",
+      "logo": "/assets/img/logo/jetstar.png"
+    },
+    {
+      "code": "EK",
+      "name": "Emirates",
+      "country": "United Arab Emirates",
+      "logo": "/assets/img/logo/emirates.png"
+    },
+    {
+      "code": "QR",
+      "name": "Qatar Airways",
+      "country": "Qatar",
+      "logo": "/assets/img/logo/qatar.png"
+    },
+    {
+      "code": "SV",
+      "name": "Saudia",
+      "country": "Saudi Arabia",
+      "logo": "/assets/img/logo/saudia.png"
+    }
+  ],
+  "airports": [
+    {
+      "code": "CGK",
+      "name": "Soekarno-Hatta International Airport",
+      "city": "Jakarta",
+      "country": "Indonesia",
+      "type": "origin",
+      "terminals": ["Terminal 1", "Terminal 2", "Terminal 3"]
+    },
+    {
+      "code": "DPS",
+      "name": "Ngurah Rai International Airport",
+      "city": "Denpasar",
+      "country": "Indonesia",
+      "type": "origin",
+      "terminals": ["International Terminal", "Domestic Terminal"]
+    },
+    {
+      "code": "SUB",
+      "name": "Juanda International Airport",
+      "city": "Surabaya",
+      "country": "Indonesia",
+      "type": "origin",
+      "terminals": ["Terminal 1", "Terminal 2"]
+    },
+    {
+      "code": "SIN",
+      "name": "Changi International Airport",
+      "city": "Singapore",
+      "country": "Singapore",
+      "type": "origin",
+      "terminals": ["Terminal 1", "Terminal 2", "Terminal 3", "Terminal 4"]
+    },
+    {
+      "code": "KUL",
+      "name": "Kuala Lumpur International Airport",
+      "city": "Kuala Lumpur",
+      "country": "Malaysia",
+      "type": "origin",
+      "terminals": ["Main Terminal", "Terminal 2"]
+    },
+    {
+      "code": "LHR",
+      "name": "London Heathrow Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "type": "origin",
+      "terminals": [
+        "Terminal 1",
+        "Terminal 2",
+        "Terminal 3",
+        "Terminal 4",
+        "Terminal 5"
+      ]
+    },
+    {
+      "code": "JFK",
+      "name": "John F. Kennedy International Airport",
+      "city": "New York",
+      "country": "United States",
+      "type": "origin",
+      "terminals": [
+        "Terminal 1",
+        "Terminal 2",
+        "Terminal 4",
+        "Terminal 5",
+        "Terminal 7",
+        "Terminal 8"
+      ]
+    },
+    {
+      "code": "SYD",
+      "name": "Sydney Kingsford Smith Airport",
+      "city": "Sydney",
+      "country": "Australia",
+      "type": "origin",
+      "terminals": ["International Terminal", "Domestic Terminal"]
+    },
+    {
+      "code": "HND",
+      "name": "Tokyo Haneda Airport",
+      "city": "Tokyo",
+      "country": "Japan",
+      "type": "origin",
+      "terminals": ["Terminal 1", "Terminal 2", "International Terminal"]
+    },
+    {
+      "code": "DXB",
+      "name": "Dubai International Airport",
+      "city": "Dubai",
+      "country": "United Arab Emirates",
+      "type": "origin",
+      "terminals": ["Terminal 1", "Terminal 2", "Terminal 3"]
+    }
+  ],
+  "aircraftTypes": {
+    "Airbus": {
+      "A220": ["A220-100", "A220-300"],
+      "A320": ["A318", "A319", "A320", "A321"],
+      "A330": ["A330-200", "A330-300", "A330neo"],
+      "A340": ["A340-200", "A340-300", "A340-500", "A340-600"],
+      "A350": ["A350-900", "A350-1000"],
+      "A380": ["A380-800"]
+    },
+    "Boeing": {
+      "737": [
+        "737-600",
+        "737-700",
+        "737-800",
+        "737-900",
+        "737 MAX 7",
+        "737 MAX 8",
+        "737 MAX 9",
+        "737 MAX 10"
+      ],
+      "747": ["747-400", "747-8"],
+      "757": ["757-200", "757-300"],
+      "767": ["767-200", "767-300", "767-400ER"],
+      "777": [
+        "777-200",
+        "777-200ER",
+        "777-200LR",
+        "777-300",
+        "777-300ER",
+        "777X (777-8, 777-9)"
+      ],
+      "787": ["787-8", "787-9", "787-10"]
+    },
+    "Embraer": {
+      "E-Jet": ["E170", "E175", "E190", "E195"],
+      "E-Jet E2": ["E175-E2", "E190-E2", "E195-E2"]
+    },
+    "Bombardier": {
+      "CRJ": ["CRJ200", "CRJ700", "CRJ900", "CRJ1000"],
+      "Q-Series": ["Q200", "Q300", "Q400"]
+    },
+    "ATR": {
+      "ATR 42": ["42-300", "42-500", "42-600"],
+      "ATR 72": ["72-200", "72-500", "72-600"]
+    },
+    "Mitsubishi": { "SpaceJet": ["M90"] },
+    "Sukhoi": { "Superjet 100": ["SSJ100"] },
+    "COMAC": { "ARJ21": ["ARJ21"], "C919": ["C919"] },
+    "Tupolev": { "Tu-204": ["Tu-204"], "Tu-214": ["Tu-214"] }
+  },
+
+  "roomType": [
+    {
+      "code": "01",
+      "name": "Single Room"
+    },
+    {
+      "code": "02",
+      "name": "Double Room"
+    },
+    {
+      "code": "03",
+      "name": "Twin Room"
+    },
+    {
+      "code": "04",
+      "name": "Triple Room"
+    },
+    {
+      "code": "05",
+      "name": "Standart Room"
+    },
+    {
+      "code": "06",
+      "name": "Deluxe Room"
+    },
+    {
+      "code": "07",
+      "name": "Suite Room"
+    },
+    {
+      "code": "08",
+      "name": "Family Room"
+    }
+  ],
+  "bedType": [
+    {
+      "code": "01",
+      "name": "Single Bed"
+    },
+    {
+      "code": "02",
+      "name": "Twin Bed"
+    },
+    {
+      "code": "03",
+      "name": "Double Bed"
+    },
+    {
+      "code": "04",
+      "name": "Queen Bed"
+    },
+    {
+      "code": "05",
+      "name": "King Bed"
+    }
+  ],
+  "station": [
+    { "code": "BD", "name": "Bandung", "city": "Bandung" },
+    { "code": "GDB", "name": "Gedebage", "city": "Bandung" },
+    { "code": "KAC", "name": "Kiaracondong", "city": "Bandung" },
+    { "code": "RCK", "name": "Rancaekek", "city": "Bandung" },
+    { "code": "RH", "name": "Rendeh", "city": "Bandung" },
+    { "code": "CMI", "name": "Cimahi", "city": "Bandung" },
+    { "code": "PDL", "name": "Padalarang", "city": "Bandung" },
+    { "code": "HRP", "name": "Haurpugur", "city": "Bandung" },
+    { "code": "CCL", "name": "Cicalengka", "city": "Bandung" },
+    { "code": "CD", "name": "Cikadongdong", "city": "Bandung" },
+    { "code": "BJR", "name": "Banjar", "city": "Banjar" },
+    { "code": "LN", "name": "Langen", "city": "Banjar" },
+    { "code": "NTG", "name": "Notog", "city": "Banyumas" },
+    { "code": "KRR", "name": "Karangsari", "city": "Banyumas" },
+    { "code": "TBK", "name": "Tambak", "city": "Banyumas" },
+    { "code": "KJ", "name": "Kemranjen", "city": "Banyumas" },
+    { "code": "SPH", "name": "Sumpiuh", "city": "Banyumas" },
+    { "code": "KBS", "name": "Kebasen", "city": "Banyumas" },
+    { "code": "RGP", "name": "Rogojampi", "city": "Banyuwangi" },
+    { "code": "KSL", "name": "Kalisetail", "city": "Banyuwangi" },
+    { "code": "GLM", "name": "Glenmore", "city": "Banyuwangi" },
+    { "code": "TGR", "name": "Temuguruh", "city": "Banyuwangi" },
+    { "code": "KBR", "name": "Kalibaru", "city": "Banyuwangi" },
+    { "code": "KTG", "name": "Ketapang", "city": "Banyuwangi" },
+    { "code": "BW", "name": "Banyuwangibaru", "city": "Banyuwangi" },
+    { "code": "SWD", "name": "Sumberwadung", "city": "Banyuwangi" },
+    { "code": "KNE", "name": "Karangasem", "city": "Banyuwangi" },
+    { "code": "BWI", "name": "Banyuwangi city", "city": "Banyuwangi" },
+    { "code": "UJN", "name": "Ujungnegoro", "city": "Batang" },
+    { "code": "BTG", "name": "Batang", "city": "Batang" },
+    { "code": "PNW", "name": "Paninjawan", "city": "Baturaja" },
+    { "code": "BTA", "name": "Baturaja", "city": "Baturaja" },
+    { "code": "CKR", "name": "Cikarang", "city": "Bekasi" },
+    { "code": "BKS", "name": "Bekasi", "city": "Bekasi" },
+    { "code": "BIJ", "name": "Binjai", "city": "Binjai" },
+    { "code": "KSB", "name": "Kesamben", "city": "Blitar" },
+    { "code": "TAL", "name": "Talun", "city": "Blitar" },
+    { "code": "WG", "name": "Wlingi", "city": "Blitar" },
+    { "code": "BL", "name": "Blitar", "city": "Blitar" },
+    { "code": "GRM", "name": "Garum", "city": "Blitar" },
+    { "code": "DPL", "name": "Doplang", "city": "Blora" },
+    { "code": "CU", "name": "Cepu", "city": "Blora" },
+    { "code": "RBG", "name": "Randublatung", "city": "Blora" },
+    { "code": "BTT", "name": "Batu tulis", "city": "Bogor" },
+    { "code": "MSG", "name": "Maseng", "city": "Bogor" },
+    { "code": "CGB", "name": "Cigombong", "city": "Bogor" },
+    { "code": "PRP", "name": "Parung panjang", "city": "Bogor" },
+    { "code": "BOO", "name": "Bogor", "city": "Bogor" },
+    { "code": "BOP", "name": "Paledang", "city": "Bogor" },
+    { "code": "SRJ", "name": "Sumberrejo", "city": "Bojonegoro" },
+    { "code": "BJ", "name": "Bojonegoro", "city": "Bojonegoro" },
+    { "code": "KIT", "name": "Kalitidu", "city": "Bojonegoro" },
+    { "code": "TW", "name": "Telawa", "city": "Boyolali" },
+    { "code": "BMA", "name": "Bumiayu", "city": "Brebes" },
+    { "code": "BB", "name": "Brebes", "city": "Brebes" },
+    { "code": "LRA", "name": "Larangan", "city": "Brebes" },
+    { "code": "LR", "name": "Larangan", "city": "Brebes" },
+    { "code": "BKA", "name": "Bulakamba", "city": "Brebes" },
+    { "code": "KRT", "name": "Kretek", "city": "Brebes" },
+    { "code": "TGN", "name": "Tanjung", "city": "Brebes" },
+    { "code": "SGG", "name": "Songgom", "city": "Brebes" },
+    { "code": "PAT", "name": "Patuguran", "city": "Brebes" },
+    { "code": "KGG", "name": "Ketanggungan", "city": "Brebes" },
+    { "code": "LG", "name": "Linggapura", "city": "Brebes" },
+    { "code": "KGB", "name": "Ketanggungan barat", "city": "Brebes" },
+    { "code": "BJI", "name": "Banjarsari", "city": "Ciamis" },
+    { "code": "CI", "name": "Ciamis", "city": "Ciamis" },
+    { "code": "CBB", "name": "Cibeber", "city": "Cianjur" },
+    { "code": "CLK", "name": "Cilaku", "city": "Cianjur" },
+    { "code": "LP", "name": "Lampegan", "city": "Cianjur" },
+    { "code": "CJ", "name": "Cianjur", "city": "Cianjur" },
+    { "code": "CKP", "name": "Cikampek", "city": "Cikampek" },
+    { "code": "CPI", "name": "Cipari", "city": "Cilacap" },
+    { "code": "CP", "name": "Cilacap", "city": "Cilacap" },
+    { "code": "GDM", "name": "Gandrungmangun", "city": "Cilacap" },
+    { "code": "MA", "name": "Maos", "city": "Cilacap" },
+    { "code": "GM", "name": "Gumilir", "city": "Cilacap" },
+    { "code": "KWG", "name": "Kawunganten", "city": "Cilacap" },
+    { "code": "JRL", "name": "Jeruklegi", "city": "Cilacap" },
+    { "code": "SKP", "name": "Sikampuh", "city": "Cilacap" },
+    { "code": "SDR", "name": "Sidareja", "city": "Cilacap" },
+    { "code": "MLW", "name": "Meluwung", "city": "Cilacap" },
+    { "code": "LBG", "name": "Lebeng", "city": "Cilacap" },
+    { "code": "KYA", "name": "Kroya", "city": "Cilacap" },
+    { "code": "MER", "name": "Merak", "city": "Cilegon" },
+    { "code": "CLG", "name": "Cilegon", "city": "Cilegon" },
+    { "code": "KRW", "name": "Karangsuwung", "city": "Cirebon" },
+    { "code": "SDU", "name": "Sindanglaut", "city": "Cirebon" },
+    { "code": "LWG", "name": "Luwung", "city": "Cirebon" },
+    { "code": "CN", "name": "Cirebon", "city": "Cirebon" },
+    { "code": "CLD", "name": "Ciledug", "city": "Cirebon" },
+    { "code": "CNP", "name": "Cirebonprujakan", "city": "Cirebon" },
+    { "code": "BBK", "name": "Babakan", "city": "Cirebon" },
+    { "code": "LOS", "name": "Losari", "city": "Cirebon" },
+    { "code": "WDW", "name": "Waruduwur", "city": "Cirebon" },
+    { "code": "AWN", "name": "Arjawinangun", "city": "Cirebon" }
+  ]
+}
