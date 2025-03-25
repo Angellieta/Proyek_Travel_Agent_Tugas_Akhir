@@ -11,7 +11,7 @@ import { ImPowerCord } from 'react-icons/im';
 import { Textarea } from 'flowbite-react';
 
 const TiketPesawat = () => {
-  const [personResponsible, setPersonResponsible] = useState('');
+  const [personResponsible] = useState('');
   const [dateCreate, setDateCreate] = useState('');
   const [guestName, setGuestName] = useState('');
   const [guestPhoneNumber, setGuestPhoneNumber] = useState('');
@@ -187,9 +187,78 @@ const TiketPesawat = () => {
     setIsOpen(!isOpen);
   };
 
+  const [form, setForm] = useState({
+    personResponsible: '',
+    adminName: '',
+    ticketDate: '',
+    guestName: '',
+    whatsapp: '',
+    airline: '',
+    departureDate: '',
+    arrivalDate: '',
+    originAirport: '',
+    destinationAirport: '',
+    departureTime: '',
+    arrivalTime: '',
+    planeManufacturer: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+  const validate = () => {
+    const newErrors = {};
+    if (!form.personResponsible.trim())
+      newErrors.personResponsible = 'Nama Pengurus wajib diisi';
+    if (!form.adminName) newErrors.adminName = 'Nama Pengurus wajib diisi';
+    if (!form.ticketDate || !/^\d{2}\/\d{2}\/\d{4}$/.test(form.ticketDate))
+      newErrors.ticketDate = 'Tanggal harus format dd/mm/yyyy';
+    if (!form.guestName) newErrors.guestName = 'Nama Tamu wajib diisi';
+    if (!form.whatsapp) newErrors.whatsapp = 'No Whatsapp wajib diisi';
+    else if (!/^628\d{8,12}$/.test(form.whatsapp))
+      newErrors.whatsapp = 'Format WA salah (628...)';
+    if (!form.airline) newErrors.airline = 'Pilih Maskapai';
+    if (!form.departureDate)
+      newErrors.departureDate = 'Tanggal Keberangkatan wajib';
+    if (!form.arrivalDate) newErrors.arrivalDate = 'Tanggal Kedatangan wajib';
+    if (!form.originAirport) newErrors.originAirport = 'Pilih Bandara Asal';
+    if (!form.destinationAirport)
+      newErrors.destinationAirport = 'Pilih Bandara Tujuan';
+    if (
+      !form.departureTime ||
+      !/^([01]\d|2[0-3]):([0-5]\d)$/.test(form.departureTime)
+    )
+      newErrors.departureTime = 'Format Jam Salah (HH:MM)';
+    if (
+      !form.arrivalTime ||
+      !/^([01]\d|2[0-3]):([0-5]\d)$/.test(form.arrivalTime)
+    )
+      newErrors.arrivalTime = 'Format Jam Salah (HH:MM)';
+    if (!form.planeManufacturer)
+      newErrors.planeManufacturer = 'Produsen Pesawat wajib dipilih';
+
+    return newErrors;
+  };
+
+  const [errors, setErrors] = useState({});
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length === 0) {
+      alert('Form Sukses Dikirim!');
+      // lanjut submit ke API di sini
+    }
+  };
+
   return (
     <div className='p-8 mx-auto max-w-6xl'>
-      <div className='my-28 p-24 bg-white shadow-lg rounded-2xl'>
+      <form
+        onSubmit={handleSubmit}
+        className='my-28 p-24 bg-white shadow-lg rounded-2xl'
+      >
         <h2 className='text-2xl font-semibold mb-12 text-center'>
           Tiket Penerbangan
         </h2>
@@ -205,11 +274,20 @@ const TiketPesawat = () => {
               <input
                 type='text'
                 id='floating_outlined'
-                value={personResponsible}
-                onChange={(e) => setPersonResponsible(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                label='Nama Lengkap Anda'
+                name='personResponsible'
+                value={form.personResponsible}
+                onChange={handleChange}
+                className={`block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 ${
+                  errors.personResponsible
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                } appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer`}
                 placeholder=' '
               />
+              {errors.adminName && (
+                <p className='text-red-500 text-sm'>{errors.adminName}</p>
+              )}
               <label
                 htmlFor='floating_outlined'
                 className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -224,8 +302,8 @@ const TiketPesawat = () => {
               <input
                 type='date'
                 id='floating_outlined'
-                value={dateCreate}
-                onChange={(e) => setDateCreate(e.target.value)}
+                value={form.ticketDate}
+                onChange={handleChange}
                 className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=' '
               />
@@ -897,11 +975,8 @@ const TiketPesawat = () => {
                     </div>
                   </div>
                 </div>
-                <div>
-                  <div
-                    id='sectionOne'
-                    className='flex flex-row items-start w-full justify-center border-slate-200 border-2 shadow-lg rounded-lg p-8 mt-5'
-                  >
+                <div id='sectionOne'>
+                  <div className='flex flex-row items-start w-full justify-center border-slate-200 border-2 shadow-lg rounded-lg p-8 mt-5'>
                     <div className='flex gap-32'>
                       {/* Logo Maskapai + Nama Maskapai */}
                       <div className='flex items-center w-full md:w-1/3 space-x-3 mb-4'>
@@ -1232,25 +1307,37 @@ const TiketPesawat = () => {
             </div>
 
             <button
+              type='button'
               className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-              onClick={() =>
-                captureScreenshot('sectionTwo', 'RincianTiketPesawat.png')
-              }
+              onClick={(e) => {
+                e.preventDefault();
+                if (validate()) {
+                  captureScreenshot('sectionTwo', 'RincianTiketPesawat.png');
+                } else {
+                  alert('Silakan lengkapi data terlebih dahulu!');
+                }
+              }}
             >
               Unduh Tiket
             </button>
 
             <button
-              className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right '
-              onClick={() =>
-                captureScreenshot('sectionOne', 'PreviewTiketPesawat.png')
-              }
+              type='button'
+              className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right'
+              onClick={(e) => {
+                e.preventDefault();
+                if (validate()) {
+                  captureScreenshot('sectionOne', 'PreviewTiketPesawat.png');
+                } else {
+                  alert('Silakan lengkapi data terlebih dahulu!');
+                }
+              }}
             >
               Unduh Preview
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
