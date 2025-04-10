@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import data from '../data/tiket.json';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
@@ -11,21 +11,14 @@ import { ImPowerCord } from 'react-icons/im';
 import { Textarea } from 'flowbite-react';
 
 const TiketPesawat = () => {
-  const [personResponsible] = useState('');
-  const [dateCreate, setDateCreate] = useState('');
-  const [guestName, setGuestName] = useState('');
-  const [guestPhoneNumber, setGuestPhoneNumber] = useState('');
-
+  const tiketRef = useRef();
   const [selectedCabinClass, setSelectedCabinClass] = useState('');
   const [selectedAirline, setSelectedAirline] = useState('');
   const [selectedOrigin, setSelectedOrigin] = useState('');
   const [originTerminal, setOriginTerminal] = useState('');
   const [destinationTerminal, setDestinationTerminal] = useState('');
   const [selectedDestination, setSelectedDestination] = useState('');
-  const [selectedAircraftManufacturer, setSelectedAircraftManufacturer] =
-    useState('');
-  const [selectedAircraftSeries, setSelectedAircraftSeries] = useState('');
-  const [selectedAircraftModel, setSelectedAircraftModel] = useState('');
+
   const [flightHours, setFlightHours] = useState('');
   const [aircraftNumber, setAircraftNumber] = useState('');
   const [flightMinutes, setFlightMinutes] = useState('');
@@ -39,72 +32,118 @@ const TiketPesawat = () => {
   const [cabinBaggage, setCabinBaggage] = useState(0);
   const [desc, setDesc] = useState('');
 
-  // Transit One
-  // const [airlineTransitOne, setAirlineTransitOne] = useState('');
-
-  // const handleAirlineTransitOneChange = (event) => {
-  //   setAirlineTransitOne(event.target.value);
-  // };
-
-  // const [depatureDateTransitOne, setDepatureDateTransitOne] = useState('');
-  // const [arrivalDateTransitOne, setArrivalDateTransitOne] = useState('');
-
-  // const [depatureTimeTransitOne, setDepatureTimeTransitOne] = useState('');
-  // const [arrivalTimeTransitOne, setArrivalTimeTransitOne] = useState('');
-
-  // const [flightHoursTransitOne, setFlightHoursTransitOne] = useState('');
-  // const [fligtMinutesTransitOne, setFlightMinutesTransitOne] = useState('');
-
-  // const [airportTransitOne, setAirportTransitOne] = useState('');
-  // const [terminalTransitOne, setTerminalTransitOne] = useState('');
-
-  // const [aircraftManufactureTransitOne, setAircraftManufactureTransitOne] =
-  //   useState('');
-
-  // const [descTransitOne, setDescTransitOne] = useState('');
-  // const [baggageTransitOne, setBaggageTransitOne] = useState('');
-  // const [cabinBaggageTransitOne, setCabinBaggageTransitOne] = useState('');
-
-  // const handleDepatureDateChange = (e) => {
-  //   setDepatureDateTransitOne(e.target.value);
-  // };
-  // const handleArrivalDateChange = (e) =>
-  //   setArrivalDateTransitOne(e.target.value);
-  // const handleDepatureTimeChange = (e) =>
-  //   setDepatureTimeTransitOne(e.target.value);
-  // const handleArrivalTimeChange = (e) =>
-  //   setArrivalTimeTransitOne(e.target.value);
-  // const handleFlightHoursChange = (e) =>
-  //   setFlightHoursTransitOne(e.target.value);
-  // const handleFlightMinutesChange = (e) =>
-  //   setFlightMinutesTransitOne(e.target.value);
-  // const handleAirportChange = (e) => setAirportTransitOne(e.target.value);
-  // const handleTerminalChange = (e) => setTerminalTransitOne(e.target.value);
-  // const handleAircraftManufactureChange = (e) =>
-  //   setAircraftManufactureTransitOne(e.target.value);
-  // const handleDescChange = (e) => setDescTransitOne(e.target.value);
-  // const handleBaggageChange = (e) => setBaggageTransitOne(e.target.value);
-  // const handleCabinBaggageChange = (e) =>
-  //   setCabinBaggageTransitOne(e.target.value);
-
   // Toggles for facilities
   const [inFlightMeal, setInFlightMeal] = useState(false);
   const [inFlightEntertainment, setInFlightEntertainment] = useState(false);
   const [wifi, setWifi] = useState(false);
   const [powerUsb, setPowerUsb] = useState(false);
 
+  const [formErrors, setFormErrors] = useState({});
+
+  const airlineRef = useRef(null);
+  const originRef = useRef(null);
+  const destinationRef = useRef(null);
+  const departureDateRef = useRef(null);
+  const arrivalDateRef = useRef(null);
+  const departureTimeRef = useRef(null);
+  const arrivalTimeRef = useRef(null);
+  const aircraftNumberRef = useRef(null);
+  const baggageRef = useRef(null);
+  const cabinBaggageRef = useRef(null);
+  const descRef = useRef(null);
+  const cabinClassRef = useRef(null);
+  const priceRef = useRef(null);
+
+  const ValidateTicketAirplane = () => {
+    const newErrors = {};
+    let firstInvalidRef = null;
+
+    if (!selectedAirline.trim()) {
+      newErrors.selectedAirline = 'Maskapai wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = airlineRef;
+    }
+    const parsedPrice = Number(formattedPrice.replace(/[^\d]/g, ''));
+
+    if (!parsedPrice || parsedPrice <= 0) {
+      newErrors.formattedPrice = 'Harga wajib diisi dan harus lebih dari 0';
+      if (!firstInvalidRef) firstInvalidRef = priceRef;
+    }
+
+    if (!selectedOrigin.trim()) {
+      newErrors.selectedOrigin = 'Bandara asal wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = originRef;
+    }
+    if (!selectedDestination.trim()) {
+      newErrors.selectedDestination = 'Bandara tujuan wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = destinationRef;
+    }
+    if (!departureDate.trim()) {
+      newErrors.departureDate = 'Tanggal keberangkatan wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = departureDateRef;
+    }
+    if (!arrivalDate.trim()) {
+      newErrors.arrivalDate = 'Tanggal kedatangan wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = arrivalDateRef;
+    }
+    if (!departureTime.trim()) {
+      newErrors.departureTime = 'Jam keberangkatan wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = departureTimeRef;
+    }
+    if (!arrivalTime.trim()) {
+      newErrors.arrivalTime = 'Jam kedatangan wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = arrivalTimeRef;
+    }
+    if (!/^\d{4}$/.test(aircraftNumber)) {
+      newErrors.aircraftNumber = 'Nomor pesawat harus 4 digit angka';
+      if (!firstInvalidRef) firstInvalidRef = aircraftNumberRef;
+    }
+    const bagasiValue = Number(baggage);
+    if (isNaN(bagasiValue) || bagasiValue > 20) {
+      newErrors.baggage = 'Bagasi maksimal 20kg';
+    }
+    const cabinBaggageValue = Number(cabinBaggage);
+    if (isNaN(cabinBaggageValue) || cabinBaggageValue > 7) {
+      newErrors.cabinBaggage = 'Bagasi Kabin maksimal 7 kg';
+    }
+    if (desc.trim().split(/\s+/).length > 100) {
+      newErrors.desc = 'Keterangan tambahan maksimal 100 kata';
+      if (!firstInvalidRef) firstInvalidRef = descRef;
+    }
+    if (!selectedCabinClass.trim()) {
+      newErrors.selectedCabinClass = 'Kelas kabin wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = cabinClassRef;
+    }
+
+    setFormErrors(newErrors);
+    return { isValid: Object.keys(newErrors).length === 0, firstInvalidRef };
+  };
+
   const toggleSwitch = (setter, currentValue) => {
     setter(!currentValue);
   };
 
-  const captureScreenshot = async (sectionId, filename) => {
-    const element = document.getElementById(sectionId); // Ambil elemen berdasarkan ID
-    if (element) {
-      const canvas = await html2canvas(element);
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = filename; // Nama file screenshot
-      link.click();
+  const downloadTiket = async () => {
+    if (!tiketRef.current) return;
+
+    const canvas = await html2canvas(tiketRef.current);
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `Tiket-Pesawat-${selectedAirline}-${departureDate}.png`;
+    link.click();
+  };
+
+  const handleTiket = () => {
+    const { isValid, firstInvalidRef } = ValidateTicketAirplane();
+
+    if (isValid) {
+      downloadTiket(); // Fungsi download tiket
+    } else if (firstInvalidRef && firstInvalidRef.current) {
+      firstInvalidRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      firstInvalidRef.current.focus();
     }
   };
 
@@ -144,21 +183,6 @@ const TiketPesawat = () => {
     setSelectedDestination(event.target.value);
   };
 
-  const handleAircraftManufacturerChange = (event) => {
-    setSelectedAircraftManufacturer(event.target.value);
-    setSelectedAircraftSeries('');
-    setSelectedAircraftModel('');
-  };
-
-  const handleAircraftSeriesChange = (event) => {
-    setSelectedAircraftSeries(event.target.value);
-    setSelectedAircraftModel('');
-  };
-
-  const handleAircraftModelChange = (event) => {
-    setSelectedAircraftModel(event.target.value);
-  };
-
   const handleCabinClassChange = (event) => {
     setSelectedCabinClass(event.target.value);
   };
@@ -187,179 +211,16 @@ const TiketPesawat = () => {
     setIsOpen(!isOpen);
   };
 
-  const [form, setForm] = useState({
-    personResponsible: '',
-    adminName: '',
-    ticketDate: '',
-    guestName: '',
-    whatsapp: '',
-    airline: '',
-    departureDate: '',
-    arrivalDate: '',
-    originAirport: '',
-    destinationAirport: '',
-    departureTime: '',
-    arrivalTime: '',
-    planeManufacturer: '',
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-  const validate = () => {
-    const newErrors = {};
-    if (!form.personResponsible.trim())
-      newErrors.personResponsible = 'Nama Pengurus wajib diisi';
-    if (!form.adminName) newErrors.adminName = 'Nama Pengurus wajib diisi';
-    if (!form.ticketDate || !/^\d{2}\/\d{2}\/\d{4}$/.test(form.ticketDate))
-      newErrors.ticketDate = 'Tanggal harus format dd/mm/yyyy';
-    if (!form.guestName) newErrors.guestName = 'Nama Tamu wajib diisi';
-    if (!form.whatsapp) newErrors.whatsapp = 'No Whatsapp wajib diisi';
-    else if (!/^628\d{8,12}$/.test(form.whatsapp))
-      newErrors.whatsapp = 'Format WA salah (628...)';
-    if (!form.airline) newErrors.airline = 'Pilih Maskapai';
-    if (!form.departureDate)
-      newErrors.departureDate = 'Tanggal Keberangkatan wajib';
-    if (!form.arrivalDate) newErrors.arrivalDate = 'Tanggal Kedatangan wajib';
-    if (!form.originAirport) newErrors.originAirport = 'Pilih Bandara Asal';
-    if (!form.destinationAirport)
-      newErrors.destinationAirport = 'Pilih Bandara Tujuan';
-    if (
-      !form.departureTime ||
-      !/^([01]\d|2[0-3]):([0-5]\d)$/.test(form.departureTime)
-    )
-      newErrors.departureTime = 'Format Jam Salah (HH:MM)';
-    if (
-      !form.arrivalTime ||
-      !/^([01]\d|2[0-3]):([0-5]\d)$/.test(form.arrivalTime)
-    )
-      newErrors.arrivalTime = 'Format Jam Salah (HH:MM)';
-    if (!form.planeManufacturer)
-      newErrors.planeManufacturer = 'Produsen Pesawat wajib dipilih';
-
-    return newErrors;
-  };
-
-  const [errors, setErrors] = useState({});
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length === 0) {
-      alert('Form Sukses Dikirim!');
-      // lanjut submit ke API di sini
-    }
-  };
-
   return (
     <div className='p-8 mx-auto max-w-6xl'>
-      <form
-        onSubmit={handleSubmit}
+      <div
+        // onSubmit={handleSubmit}
         className='my-28 p-24 bg-white shadow-lg rounded-2xl'
       >
         <h2 className='text-2xl font-semibold mb-12 text-center'>
           Tiket Penerbangan
         </h2>
         <hr className='mb-12' />
-
-        <h3 className='text-lg font-semibold text-lime-600 mb-4 ml-4'>
-          Detail Pengurus:
-        </h3>
-
-        <div className='flex'>
-          <div className='mb-8 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='text'
-                id='floating_outlined'
-                label='Nama Lengkap Anda'
-                name='personResponsible'
-                value={form.personResponsible}
-                onChange={handleChange}
-                className={`block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 ${
-                  errors.personResponsible
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                } appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer`}
-                placeholder=' '
-              />
-              {errors.adminName && (
-                <p className='text-red-500 text-sm'>{errors.adminName}</p>
-              )}
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Nama Lengkap Anda
-              </label>
-            </div>
-          </div>
-
-          <div className='mb-4 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='date'
-                id='floating_outlined'
-                value={form.ticketDate}
-                onChange={handleChange}
-                className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Tanggal Input Tiket
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <h3 className='text-lg font-semibold text-lime-600 mb-4 ml-4'>
-          Detail Tamu:
-        </h3>
-
-        <div className='flex '>
-          <div className='mb-8 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='text'
-                id='floating_outlined'
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Nama Lengkap Tamu
-              </label>
-            </div>
-          </div>
-
-          <div className='mb-4 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='number'
-                id='floating_outlined'
-                value={guestPhoneNumber}
-                onChange={(e) => setGuestPhoneNumber(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                No Whatsapp
-              </label>
-            </div>
-          </div>
-        </div>
 
         <h3 className='text-lg font-semibold text-lime-600 mb-4 ml-4'>
           Detail Penerbangan:
@@ -377,6 +238,7 @@ const TiketPesawat = () => {
                   Maskapai
                 </label>
                 <select
+                  ref={aircraftNumberRef}
                   id='floating_outlined'
                   value={selectedAirline}
                   onChange={handleAirlineChange}
@@ -391,6 +253,11 @@ const TiketPesawat = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.selectedAirline && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.selectedAirline}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -404,6 +271,7 @@ const TiketPesawat = () => {
                   Bandara Asal
                 </label>
                 <select
+                  ref={originRef}
                   id='floating_outlined'
                   value={selectedOrigin}
                   onChange={handleOriginChange}
@@ -416,6 +284,11 @@ const TiketPesawat = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.selectedOrigin && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.selectedOrigin}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -429,6 +302,7 @@ const TiketPesawat = () => {
                   Bandara Tujuan
                 </label>
                 <select
+                  ref={destinationRef}
                   id='floating_outlined'
                   value={selectedDestination}
                   onChange={handleDestinationChange}
@@ -441,6 +315,11 @@ const TiketPesawat = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.selectedDestination && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.selectedDestination}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -456,6 +335,7 @@ const TiketPesawat = () => {
                   Tanggal Keberangkatan
                 </label>
                 <input
+                  ref={departureDateRef}
                   type='date'
                   id='floating_outlined'
                   value={departureDate || ''}
@@ -463,6 +343,11 @@ const TiketPesawat = () => {
                   placeholder=''
                   className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
+                {formErrors.departureDate && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.departureDate}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -492,6 +377,7 @@ const TiketPesawat = () => {
                     </svg>
                   </div>
                   <input
+                    ref={departureTimeRef}
                     type='time'
                     id='floating_outlined'
                     className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -499,8 +385,12 @@ const TiketPesawat = () => {
                     max='18:00'
                     value={departureTime}
                     onChange={(e) => setDepartureTime(e.target.value)}
-                    required
                   />
+                  {formErrors.departureTime && (
+                    <p className='text-red-500 text-xs mt-1 ml-2'>
+                      {formErrors.departureTime}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -520,8 +410,14 @@ const TiketPesawat = () => {
                 className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=''
               />
+              {formErrors.originTerminal && (
+                <p className='text-red-500 text-xs mt-1 ml-2'>
+                  {formErrors.originTerminal}
+                </p>
+              )}
             </div>
           </div>
+
           <div className='w-1/2'>
             <div className='mb-6 pl-4 text-sm'>
               <div className='relative'>
@@ -532,12 +428,18 @@ const TiketPesawat = () => {
                   Tanggal Kedatangan
                 </label>
                 <input
+                  ref={arrivalDateRef}
                   type='date'
                   id='floating_outlined'
                   value={arrivalDate}
                   onChange={(e) => setArrivalDate(e.target.value)}
                   className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
+                {formErrors.arrivalDate && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.arrivalDate}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -566,6 +468,7 @@ const TiketPesawat = () => {
                     </svg>
                   </div>
                   <input
+                    ref={arrivalTimeRef}
                     type='time'
                     id='floating_outlined'
                     className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -573,8 +476,12 @@ const TiketPesawat = () => {
                     max='18:00'
                     value={arrivalTime || ''}
                     onChange={(e) => setArrivalTime(e.target.value)}
-                    required
                   />
+                  {formErrors.arrivalTime && (
+                    <p className='text-red-500 text-xs mt-1 ml-2'>
+                      {formErrors.arrivalTime}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -598,85 +505,6 @@ const TiketPesawat = () => {
           </div>
         </div>
 
-        <div className='mb-6 pl-4 text-sm w-full'>
-          <div className='relative'>
-            <label
-              htmlFor='floating_outlined'
-              className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-            >
-              Produsen Pesawat
-            </label>
-            <select
-              id='floating_outlined'
-              value={selectedAircraftManufacturer}
-              onChange={handleAircraftManufacturerChange}
-              className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-            >
-              <option value=''>-</option>
-              {Object.keys(data.aircraftTypes).map((manufacturer) => (
-                <option key={manufacturer} value={manufacturer}>
-                  {manufacturer}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        {selectedAircraftManufacturer && (
-          <div className='mb-6 pl-4 text-sm'>
-            <div className='relative'>
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Seri Pesawat
-              </label>
-              <select
-                id='floating_outlined'
-                value={selectedAircraftSeries}
-                onChange={handleAircraftSeriesChange}
-                className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-              >
-                <option value=''>-</option>
-                {Object.keys(
-                  data.aircraftTypes[selectedAircraftManufacturer]
-                ).map((series) => (
-                  <option key={series} value={series}>
-                    {series}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {selectedAircraftSeries && (
-          <div className='mb-6 pl-4 text-sm'>
-            <div className='relative'>
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Model Pesawat
-              </label>
-              <select
-                id='floating_outlined'
-                value={selectedAircraftModel}
-                onChange={handleAircraftModelChange}
-                className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-              >
-                <option value=''>-</option>
-                {data.aircraftTypes[selectedAircraftManufacturer][
-                  selectedAircraftSeries
-                ].map((model) => (
-                  <option key={model} value={model}>
-                    {model}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
-
         <div className='flex'>
           <div className='w-1/2'>
             <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
@@ -687,6 +515,7 @@ const TiketPesawat = () => {
                 Nomor Pesawat
               </label>
               <input
+                ref={aircraftNumberRef}
                 type='number'
                 id='floating_outlined'
                 value={aircraftNumber}
@@ -694,6 +523,11 @@ const TiketPesawat = () => {
                 className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg  px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder='Contohnya " 4157 "'
               />
+              {formErrors.aircraftNumber && (
+                <span className='absolute top-full mt-1 ml-2 text-xs text-red-500'>
+                  {formErrors.aircraftNumber}
+                </span>
+              )}
             </div>
           </div>
           <div className='w-1/2'>
@@ -707,6 +541,7 @@ const TiketPesawat = () => {
                   Kelas Kabin
                 </label>
                 <select
+                  ref={cabinClassRef}
                   id='floating_outlined'
                   value={selectedCabinClass}
                   onChange={handleCabinClassChange}
@@ -718,6 +553,11 @@ const TiketPesawat = () => {
                   <option value='Business'>Business</option>
                   <option value='First Class'>First Class</option>
                 </select>
+                {formErrors.selectedCabinClass && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.selectedCabinClass}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -781,13 +621,19 @@ const TiketPesawat = () => {
                   Bagasi
                 </label>
                 <input
-                  type='text'
+                  ref={baggageRef}
+                  type='number'
                   id='floating_outlined'
                   value={baggage}
                   onChange={(e) => setBaggage(e.target.value)}
                   className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=''
                 />
+                {formErrors.baggage && (
+                  <p className=' absolute text-red-500 text-xs mt-14 ml-2'>
+                    {formErrors.baggage}
+                  </p>
+                )}
                 <div className='flex -mr-px'>
                   <span className='flex items-center pb-2.5 pt-6 bg-transparent font-medium text-gray-500 border-gray-300 leading-normal rounded-lg rounded-l-none border border-l-0 px-3 whitespace-no-wrap text-grey-dark text-xs'>
                     Kg
@@ -803,13 +649,19 @@ const TiketPesawat = () => {
                   Kabin Bagasi
                 </label>
                 <input
-                  type='text'
+                  ref={cabinBaggageRef}
+                  type='number'
                   id='floating_outlined'
                   value={cabinBaggage}
                   onChange={(e) => setCabinBaggage(e.target.value)}
                   className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=''
                 />
+                {formErrors.cabinBaggage && (
+                  <p className=' absolute text-red-500 text-xs mt-14 ml-2'>
+                    {formErrors.cabinBaggage}
+                  </p>
+                )}
                 <div className='flex -mr-px'>
                   <span className='flex items-center pb-2.5 pt-6 bg-transparent font-medium text-gray-500 border-gray-300 leading-normal rounded-lg rounded-l-none border border-l-0 px-3 whitespace-no-wrap text-grey-dark text-xs'>
                     Kg
@@ -829,12 +681,18 @@ const TiketPesawat = () => {
                   Harga Tiket
                 </label>
                 <input
+                  ref={priceRef}
                   type='text'
                   id='floating_outlined'
                   value={formattedPrice}
                   onChange={handlePriceChange}
                   className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
+                {formErrors.formattedPrice && (
+                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.formattedPrice}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -843,6 +701,7 @@ const TiketPesawat = () => {
         <div className='mb-8 pl-4 text-sm w-full'>
           <div className='relative'>
             <Textarea
+              ref={descRef}
               type='text'
               id='floating_outlined'
               value={desc}
@@ -850,6 +709,11 @@ const TiketPesawat = () => {
               className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
               placeholder=' '
             />
+            {formErrors.desc && (
+              <p className='text-red-500 text-xs mt-1 ml-2'>
+                {formErrors.desc}
+              </p>
+            )}
             <label
               htmlFor='floating_outlined'
               className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -945,37 +809,9 @@ const TiketPesawat = () => {
             <h3 className='text-lg font-semibold text-lime-600 mb-4'>
               Rincian Penerbangan
             </h3>
-            <div id='sectionTwo' className='bg-white p-8 mb-8'>
+            <div className='bg-white p-8 mb-8'>
               <div>
-                <div className='grid grid-cols-2 gap-10 p-6 text-gray-700 border-dotted border-2 border-lime-500 '>
-                  <div className='-mt-2'>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>Nama Tamu</span>
-                      <span className='text-gray-600'>: {guestName}</span>
-                    </div>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>No Whatsapp</span>
-                      <span className='text-gray-600'>
-                        : {guestPhoneNumber}
-                      </span>
-                    </div>
-                  </div>
-                  <div className='-mt-2'>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>Tanggal Dibuat</span>
-                      <span className='text-gray-600'>
-                        :{' '}
-                        {dateCreate &&
-                          format(new Date(dateCreate), 'd MMMM yyyy')}
-                      </span>
-                    </div>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>Nama Pengurus</span>
-                      <span>: {personResponsible}</span>
-                    </div>
-                  </div>
-                </div>
-                <div id='sectionOne'>
+                <div ref={tiketRef}>
                   <div className='flex flex-row items-start w-full justify-center border-slate-200 border-2 shadow-lg rounded-lg p-8 mt-5'>
                     <div className='flex gap-32'>
                       {/* Logo Maskapai + Nama Maskapai */}
@@ -1286,12 +1122,6 @@ const TiketPesawat = () => {
                             {/* Deskripsi Teks */}
                             <div>
                               <div>
-                                <p className='text-sm font-semibold text-gray-800'>
-                                  {selectedAircraftManufacturer}{' '}
-                                  {selectedAircraftSeries}
-                                </p>
-                              </div>
-                              <div>
                                 <p className='text-xs text-gray-500 whitespace-pre-wrap'>
                                   {desc}
                                 </p>
@@ -1309,35 +1139,13 @@ const TiketPesawat = () => {
             <button
               type='button'
               className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-              onClick={(e) => {
-                e.preventDefault();
-                if (validate()) {
-                  captureScreenshot('sectionTwo', 'RincianTiketPesawat.png');
-                } else {
-                  alert('Silakan lengkapi data terlebih dahulu!');
-                }
-              }}
+              onClick={handleTiket}
             >
               Unduh Tiket
             </button>
-
-            <button
-              type='button'
-              className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right'
-              onClick={(e) => {
-                e.preventDefault();
-                if (validate()) {
-                  captureScreenshot('sectionOne', 'PreviewTiketPesawat.png');
-                } else {
-                  alert('Silakan lengkapi data terlebih dahulu!');
-                }
-              }}
-            >
-              Unduh Preview
-            </button>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

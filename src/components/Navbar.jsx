@@ -30,7 +30,7 @@ const Navbar = () => {
     if (lastPage) {
       navigate(lastPage);
     } else {
-      navigate('/'); // Kalau tidak ada history, kembali ke halaman utama
+      navigate('/');
     }
   };
 
@@ -80,7 +80,7 @@ const Navbar = () => {
               </button>
             ) : (
               <button
-                onClick={() => navigate('/kategoritiket')}
+                onClick={() => navigate('/datacustomer')}
                 className='flex items-center px-7 py-3 rounded-lg font-medium text-sm hover:shadow-2xl text-white transform hover:translate-y-1 hover:bg-lime-900 hover:scale-105 transition-all duration-500 bg-lime-900  shadow-lg shadow-lime-900'
               >
                 Buat Tiket

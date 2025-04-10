@@ -7,11 +7,6 @@ import data from '../data/tiket.json';
 import html2canvas from 'html2canvas';
 
 const TiketKeretaApi = () => {
-  const [personResponsible, setPersonResponsible] = useState('');
-  const [dateCreate, setDateCreate] = useState('');
-  const [guestName, setGuestName] = useState('');
-  const [guestPhoneNumber, setGuestPhoneNumber] = useState('');
-
   const [codeTrain, setCodeTrain] = useState('');
   const [trainName, setTrainName] = useState('');
 
@@ -104,95 +99,6 @@ const TiketKeretaApi = () => {
         </h2>
         <hr className='mb-12' />
 
-        <h3 className='text-lg font-semibold text-lime-600 mb-6 ml-4'>
-          Detail Pengurus:
-        </h3>
-
-        <div className='flex'>
-          <div className='mb-8 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='text'
-                id='floating_outlined'
-                value={personResponsible}
-                onChange={(e) => setPersonResponsible(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Nama Lengkap Anda
-              </label>
-            </div>
-          </div>
-
-          <div className='mb-4 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='date'
-                id='floating_outlined'
-                value={dateCreate}
-                onChange={(e) => setDateCreate(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Tanggal Input Tiket
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <h3 className='text-lg font-semibold text-lime-600 mb-6 ml-4'>
-          Detail Tamu:
-        </h3>
-
-        <div className='flex'>
-          <div className='mb-14 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='text'
-                id='floating_outlined'
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                Nama Lengkap Tamu
-              </label>
-            </div>
-          </div>
-
-          <div className='mb-4 pl-4 text-sm w-full'>
-            <div className='relative'>
-              <input
-                type='number'
-                id='floating_outlined'
-                value={guestPhoneNumber}
-                onChange={(e) => setGuestPhoneNumber(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                placeholder=' '
-              />
-              <label
-                htmlFor='floating_outlined'
-                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-              >
-                No Whatsapp
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <hr className='mb-10' />
         <div className='flex flex-col gap-8'>
           <h3 className='text-lg font-semibold text-lime-600 ml-4'>
             Detail Kereta Api:
@@ -517,35 +423,6 @@ const TiketKeretaApi = () => {
                 id='sectionTwo'
                 className='bg-white shadow-lg rounded-lg p-8 mb-8 mx-auto'
               >
-                <div className='grid grid-cols-2 gap-10 p-6 text-gray-700 border-dotted border-2 border-lime-500'>
-                  <div className='-mt-2'>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>Nama Tamu</span>
-                      <span className='text-gray-600'>: {guestName}</span>
-                    </div>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>No Whatsapp</span>
-                      <span className='text-gray-600'>
-                        : {guestPhoneNumber}
-                      </span>
-                    </div>
-                  </div>
-                  <div className='-mt-2'>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>Tanggal Dibuat</span>
-                      <span className='text-gray-600'>
-                        :{' '}
-                        {dateCreate &&
-                          format(new Date(dateCreate), 'd MMMM yyyy')}
-                      </span>
-                    </div>
-                    <div className='flex'>
-                      <span className='w-40 text-lime-800'>Nama Pengurus</span>
-                      <span>: {personResponsible}</span>
-                    </div>
-                  </div>
-                </div>
-
                 <div
                   id='sectionOne'
                   className='flex flex-col gap-2 ml-6 mt-10 mr-6 p-6'
@@ -670,15 +547,6 @@ const TiketKeretaApi = () => {
                 }
               >
                 Unduh Tiket
-              </button>
-
-              <button
-                className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right '
-                onClick={() =>
-                  captureScreenshot('sectionOne', 'PreviewTiketKeretaApi.png')
-                }
-              >
-                Unduh Preview
               </button>
             </div>
           </div>
