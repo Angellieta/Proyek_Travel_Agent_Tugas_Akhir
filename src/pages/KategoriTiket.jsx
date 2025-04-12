@@ -34,10 +34,10 @@ const KategoriTiket = () => {
               <span className='text-center'>Tiket Pesawat</span>
             </button>
 
-            {/* Tiket Hotel */}
+            {/* Voucher Hotel */}
             <button
               className='bg-white font-semibold text-lime-900 p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:translate-y-1 hover:scale-105 transition-all duration-500 w-full h-40 flex flex-col items-center justify-center'
-              onClick={() => navigate('/tikethotel')}
+              onClick={() => navigate('/voucherhotel')}
             >
               <FaHotel className='w-12 h-12 mb-2' /> {/* Icon Hotel */}
               <span className='text-center'>Voucher Hotel</span>

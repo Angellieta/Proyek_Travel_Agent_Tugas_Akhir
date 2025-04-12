@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 import { format } from 'date-fns';
 
@@ -7,6 +7,7 @@ import data from '../data/tiket.json';
 import html2canvas from 'html2canvas';
 
 const TiketKeretaApi = () => {
+  const tiketRef = useRef();
   const [codeTrain, setCodeTrain] = useState('');
   const [trainName, setTrainName] = useState('');
 
@@ -22,6 +23,110 @@ const TiketKeretaApi = () => {
   const [trainMinutes, setTrainMinutes] = useState('');
 
   const [selectedTrainClass, setSelectedTrainClass] = useState('');
+
+  const [formErrors, setFormErrors] = useState({});
+
+  const codeTrainRef = useRef(null);
+  const trainNameRef = useRef(null);
+  const stationSelectedDepatureRef = useRef(null);
+  const stationSelectedArrivalRef = useRef(null);
+  const trainDateDepatureRef = useRef(null);
+  const trainDateArrivalRef = useRef(null);
+  const trainTimeDepatureRef = useRef(null);
+  const trainTimeArrivalRef = useRef(null);
+  const priceRef = useRef(null);
+  const selectedTrainClassRef = useRef(null);
+  const trainDescRef = useRef(null);
+
+  const validateTrainTicket = () => {
+    const newErrors = {};
+    let firstInvalidRef = null;
+
+    if (!codeTrain || !/^\d{3}$/.test(codeTrain)) {
+      newErrors.codeTrain = 'Nomor kereta harus 3 digit angka';
+      if (!firstInvalidRef) firstInvalidRef = codeTrainRef;
+    }
+
+    if (!trainName.trim()) {
+      newErrors.trainName = 'Nama kereta wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = trainNameRef;
+    }
+
+    if (!stationSelectedDepature) {
+      newErrors.stationSelectedDepature = 'Stasiun asal wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = stationSelectedDepatureRef;
+    }
+
+    if (!stationSelectedArrival) {
+      newErrors.stationSelectedArrival = 'Stasiun tujuan wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = stationSelectedArrivalRef;
+    }
+
+    if (!trainDateDepature) {
+      newErrors.trainDateDepature = 'Tanggal berangkat wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = trainDateDepatureRef;
+    }
+
+    if (!trainDateArrival) {
+      newErrors.trainDateArrival = 'Tanggal sampai wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = trainDateArrivalRef;
+    }
+
+    if (!trainTimeDepature) {
+      newErrors.trainTimeDepature = 'Waktu berangkat wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = trainTimeDepatureRef;
+    }
+
+    if (!trainTimeArrival) {
+      newErrors.trainTimeArrival = 'Waktu sampai wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = trainTimeArrivalRef;
+    }
+
+    const parsedPrice = Number(formattedPrice.replace(/[^\d]/g, ''));
+    if (!parsedPrice || parsedPrice <= 0) {
+      newErrors.formattedPrice = 'Harga wajib diisi dan harus lebih dari 0';
+      if (!firstInvalidRef) firstInvalidRef = priceRef;
+    }
+
+    if (!selectedTrainClass) {
+      newErrors.selectedTrainClass = 'Kelas wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = selectedTrainClassRef;
+    }
+
+    if (trainDesc.trim().split(/\s+/).length > 100) {
+      newErrors.trainDesc = 'Keterangan maksimal 100 kata';
+      if (!firstInvalidRef) firstInvalidRef = trainDescRef;
+    }
+
+    setFormErrors(newErrors);
+
+    return { isValid: Object.keys(newErrors).length === 0, firstInvalidRef };
+  };
+
+  const downloadTiketKereta = async () => {
+    if (!tiketRef.current) return;
+
+    const canvas = await html2canvas(tiketRef.current);
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
+    link.click();
+  };
+
+  const handleTiketKereta = () => {
+    const { isValid, firstInvalidRef } = validateTrainTicket();
+
+    if (isValid) {
+      downloadTiketKereta();
+    } else if (firstInvalidRef && firstInvalidRef.current) {
+      firstInvalidRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      firstInvalidRef.current.focus();
+    }
+  };
 
   const handleTrainClassChange = (event) => {
     setSelectedTrainClass(event.target.value);
@@ -81,16 +186,6 @@ const TiketKeretaApi = () => {
     calculateFlightDuration();
   }, [calculateFlightDuration]);
 
-  const captureScreenshot = async (sectionId, filename) => {
-    const element = document.getElementById(sectionId); // Ambil elemen berdasarkan ID
-    if (element) {
-      const canvas = await html2canvas(element);
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = filename; // Nama file screenshot
-      link.click();
-    }
-  };
   return (
     <div className='p-8 mx-auto max-w-6xl'>
       <div className='my-28 p-24 bg-white shadow-lg rounded-2xl'>
@@ -108,7 +203,8 @@ const TiketKeretaApi = () => {
             <div className='justify-center items-center w-1/3 mr-4'>
               <div className='relative'>
                 <input
-                  type='text'
+                  ref={codeTrainRef}
+                  type='number'
                   id='floating_outlined_code'
                   value={codeTrain}
                   onChange={(e) => setCodeTrain(e.target.value)}
@@ -121,11 +217,18 @@ const TiketKeretaApi = () => {
                 >
                   Nomor Kereta
                 </label>
+                {formErrors.codeTrain && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.codeTrain}
+                  </p>
+                )}
               </div>
             </div>
+
             <div className='justify-center items-center w-2/3'>
               <div className='relative'>
                 <input
+                  ref={trainNameRef}
                   type='text'
                   id='floating_outlined_name'
                   value={trainName}
@@ -133,6 +236,11 @@ const TiketKeretaApi = () => {
                   className='block px-2.5 pb-2.5 pt-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.trainName && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.trainName}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined_name'
                   className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -153,6 +261,7 @@ const TiketKeretaApi = () => {
                   Stasiun Dari
                 </label>
                 <select
+                  ref={stationSelectedDepatureRef}
                   id='floating_outlined'
                   value={stationSelectedDepature}
                   onChange={handleStationDepatureChange}
@@ -167,9 +276,14 @@ const TiketKeretaApi = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.stationSelectedDepature && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.stationSelectedDepature}
+                  </p>
+                )}
               </div>
             </div>
-            <div className='justify-center items-stretch w-1/4 mr-4'>
+            <div className='justify-center items-center w-1/4 mr-4'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -178,6 +292,7 @@ const TiketKeretaApi = () => {
                   Stasiun Ke
                 </label>
                 <select
+                  ref={stationSelectedArrivalRef}
                   id='floating_outlined'
                   value={stationSelectedArrival}
                   onChange={handleStationArrivalChange}
@@ -192,18 +307,29 @@ const TiketKeretaApi = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.stationSelectedArrival && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.stationSelectedArrival}
+                  </p>
+                )}
               </div>
             </div>
-            <div className='justify-center items-stretch w-1/4 mr-4'>
+            <div className='justify-center items-center w-1/4 mr-4'>
               <div className='relative'>
                 <input
+                  ref={trainDateDepatureRef}
                   type='date'
                   id='floating_outlined'
                   value={trainDateDepature}
                   onChange={(e) => setTrainDateDepature(e.target.value)}
-                  className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                  className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.trainDateDepature && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.trainDateDepature}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -212,16 +338,22 @@ const TiketKeretaApi = () => {
                 </label>
               </div>
             </div>
-            <div className='justify-center items-stretch w-1/4'>
+            <div className='justify-center items-center w-1/4'>
               <div className='relative'>
                 <input
+                  ref={trainDateArrivalRef}
                   type='date'
                   id='floating_outlined'
                   value={trainDateArrival}
                   onChange={(e) => setTrainDateArrival(e.target.value)}
-                  className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                  className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.trainDateArrival && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.trainDateArrival}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -233,7 +365,7 @@ const TiketKeretaApi = () => {
           </div>
 
           <div className='flex ml-4'>
-            <div className='justify-center items-stretch w-1/4 mr-4'>
+            <div className='justify-center items-center w-1/4 mr-4'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -257,6 +389,7 @@ const TiketKeretaApi = () => {
                   </svg>
                 </div>
                 <input
+                  ref={trainTimeDepatureRef}
                   type='time'
                   id='floating_outlined'
                   className='block pr-2.5 pb-3 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -266,6 +399,11 @@ const TiketKeretaApi = () => {
                   onChange={(e) => setTrainTimeDepature(e.target.value)}
                   required
                 />
+                {formErrors.trainTimeDepature && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.trainTimeDepature}
+                  </p>
+                )}
               </div>
             </div>
             <div className='justify-center items-center w-1/4 mr-4'>
@@ -292,6 +430,7 @@ const TiketKeretaApi = () => {
                   </svg>
                 </div>
                 <input
+                  ref={trainTimeArrivalRef}
                   type='time'
                   id='floating_outlined'
                   className='block px-2.5 pb-3 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -301,6 +440,11 @@ const TiketKeretaApi = () => {
                   onChange={(e) => setTrainTimeArrival(e.target.value)}
                   required
                 />
+                {formErrors.trainTimeArrival && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.trainTimeArrival}
+                  </p>
+                )}
               </div>
             </div>
             <div className='justify-center items-center w-1/4 mr-4 '>
@@ -308,7 +452,7 @@ const TiketKeretaApi = () => {
                 <div className='flex relative w-full'>
                   <label
                     htmlFor='floating_outlined'
-                    className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-2'
+                    className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-100 rounded-md dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-2'
                   >
                     Waktu Perjalanan
                   </label>
@@ -317,8 +461,9 @@ const TiketKeretaApi = () => {
                     id='floating_outlined'
                     value={trainHours}
                     onChange={(e) => setTrainHours(e.target.value)}
-                    className='flex-shrink flex-grow flex-auto py-3.5 px-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none relative dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                    className='flex-shrink flex-grow flex-auto py-3.5 px-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 bg-gray-100 rounded-lg rounded-r-none relative dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                     placeholder=''
+                    disabled
                   />
                   <div className='flex -mr-px'>
                     <span className='flex items-center py-1 px-2 bg-transparent font-medium text-gray-500 border-gray-300 leading-normal rounded-lg rounded-l-none border border-l-0 whitespace-no-wrap text-grey-dark text-xs'>
@@ -332,15 +477,16 @@ const TiketKeretaApi = () => {
               <div className='flex relative w-full'>
                 <label
                   htmlFor='floating_outlined_minutes'
-                  className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-2'
+                  className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-100 rounded-md dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-2'
                 ></label>
                 <input
                   type='text'
                   id='floating_outlined_minutes'
                   value={trainMinutes}
                   onChange={(e) => setTrainMinutes(e.target.value)}
-                  className='flex-shrink flex-grow flex-auto py-3.5 px-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none relative dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                  className='flex-shrink flex-grow flex-auto py-3.5 px-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 bg-gray-100 rounded-lg rounded-r-none relative dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=''
+                  disabled
                 />
                 <div className='flex -mr-px'>
                   <span className='flex items-center py-1 px-2 bg-transparent font-medium text-gray-500 border-gray-300 leading-normal rounded-lg rounded-l-none border border-l-0 whitespace-no-wrap text-grey-dark text-xs'>
@@ -361,6 +507,7 @@ const TiketKeretaApi = () => {
                   Kelas
                 </label>
                 <select
+                  ref={selectedTrainClassRef}
                   id='floating_outlined'
                   value={selectedTrainClass}
                   onChange={handleTrainClassChange}
@@ -374,6 +521,11 @@ const TiketKeretaApi = () => {
                   <option value='Luxury'>Luxury</option>
                   <option value='Priority'>Priority</option>
                 </select>
+                {formErrors.selectedTrainClass && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.selectedTrainClass}
+                  </p>
+                )}
               </div>
             </div>
             <div className='justify-center items-center w-1/2 '>
@@ -385,12 +537,18 @@ const TiketKeretaApi = () => {
                   Harga Tiket
                 </label>
                 <input
+                  ref={priceRef}
                   type='text'
                   id='floating_outlined'
                   value={formattedPrice}
                   onChange={handlePriceChange}
                   className='block px-2.5 pb-3 py-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
+                {formErrors.formattedPrice && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.formattedPrice}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -398,6 +556,7 @@ const TiketKeretaApi = () => {
           <div className='ml-4'>
             <div className='relative'>
               <input
+                ref={trainDescRef}
                 type='text'
                 id='floating_outlined'
                 value={trainDesc}
@@ -405,6 +564,11 @@ const TiketKeretaApi = () => {
                 className='block px-2.5 pb-3 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder='Contoh "Eksekutif 2, 3B" '
               />
+              {formErrors.trainDesc && (
+                <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                  {formErrors.trainDesc}
+                </p>
+              )}
               <label
                 htmlFor='floating_outlined'
                 className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2  origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -416,16 +580,13 @@ const TiketKeretaApi = () => {
 
           <div className='container mx-auto p-6'>
             <div className='mt-8'>
-              <h3 className='text-lg font-semibold text-lime-600 mb-4'>
+              <h3 className='text-lg font-semibold text-lime-600 '>
                 Rincian Tiket Kereta Api
               </h3>
-              <div
-                id='sectionTwo'
-                className='bg-white shadow-lg rounded-lg p-8 mb-8 mx-auto'
-              >
+              <div className='bg-white shadow-lg rounded-lg p-8 mb-6 mx-auto'>
                 <div
-                  id='sectionOne'
-                  className='flex flex-col gap-2 ml-6 mt-10 mr-6 p-6'
+                  ref={tiketRef}
+                  className='flex flex-col gap-2 ml-6 mr-4 p-6'
                 >
                   <div className='flex items-center text-xl font-semibold text-gray-700 m-1'>
                     <div>
@@ -439,8 +600,17 @@ const TiketKeretaApi = () => {
                     </div>
                   </div>
 
+                  <div className='flex justify-between items-center mt-2 m-1 border-b-2 border-gray-300 border-dashed py-2'>
+                    <div className='text-right text-gray-700 text-sm mt-6 '>
+                      {' '}
+                      <span className='font-semibold'>
+                        Nomor Booking &nbsp; : &nbsp;
+                      </span>{' '}
+                    </div>
+                  </div>
+
                   <div className='flex justify-between items-center gap-5 m-1'>
-                    <div className='flex flex-col mt-6'>
+                    <div className='flex flex-col mt-2'>
                       <div className='font-semibold text-lime-800 '>
                         {stationSelectedDepature
                           ? data.station.find(
@@ -542,9 +712,7 @@ const TiketKeretaApi = () => {
             <div className='mx-auto'>
               <button
                 className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-                onClick={() =>
-                  captureScreenshot('sectionTwo', 'RincianTiketKeretaApi.png')
-                }
+                onClick={handleTiketKereta}
               >
                 Unduh Tiket
               </button>

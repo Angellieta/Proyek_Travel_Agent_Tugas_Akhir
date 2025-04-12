@@ -6,7 +6,7 @@ import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import KategoriTiket from './pages/KategoriTiket';
 import TiketPesawat from './pages/TiketPesawat';
-import TiketHotel from './pages/TiketHotel';
+import VoucherHotel from './pages/VoucherHotel';
 import TiketAtraksi from './pages/TiketAtraksi';
 import TiketKeretaApi from './pages/TiketKeretaApi';
 import RegisterPage from './pages/RegisterPage';
@@ -27,7 +27,7 @@ function App() {
         <Route path='/datacustomer' element={<DataCustomerPage />} />
         <Route path='/kategoritiket' element={<KategoriTiket />} />
         <Route path='/tiketpesawat' element={<TiketPesawat />} />
-        <Route path='/tikethotel' element={<TiketHotel />} />
+        <Route path='/voucherhotel' element={<VoucherHotel />} />
         <Route path='/tiketatraksi' element={<TiketAtraksi />} />
         <Route path='/tiketkeretaapi' element={<TiketKeretaApi />} />
       </Routes>

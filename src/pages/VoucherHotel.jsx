@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TbManFilled } from 'react-icons/tb';
 import { ImManWoman } from 'react-icons/im';
 import { Textarea } from 'flowbite-react';
@@ -28,8 +28,9 @@ import { GiKeyCard } from 'react-icons/gi';
 import { TbHotelService } from 'react-icons/tb';
 import { MdOutlineLocalLaundryService } from 'react-icons/md';
 
-const TiketHotel = () => {
-  const [codeBooking, setCodeBooking] = useState('');
+const VoucherHotel = () => {
+  const voucherHotelRef = useRef();
+
   const [hotelName, setHotelName] = useState('');
 
   const [hotelAddress, setHotelAddress] = useState('');
@@ -47,6 +48,147 @@ const TiketHotel = () => {
 
   const [roomOptions, setRoomOptions] = useState([]);
   const [bedOptions, setBedOptions] = useState([]);
+
+  const [formErrors, setFormErrors] = useState({});
+
+  const hotelNameRef = useRef(null);
+  const hotelAddressRef = useRef(null);
+  const hotelDateDepatureRef = useRef(null);
+  const hotelTimeDepatureRef = useRef(null);
+  const hotelDateArrivalRef = useRef(null);
+  const hotelTimeArrivalRef = useRef(null);
+  const roomTypeRef = useRef(null);
+  const bedTypeRef = useRef(null);
+  const questRef = useRef(null);
+  const facilityRef = useRef(null);
+  const descHotelRef = useRef(null);
+  const priceRef = useRef(null);
+
+  const ValidateVoucherHotel = () => {
+    const newErrors = {};
+    let firstInvalidRef = null;
+
+    if (!hotelName.trim()) {
+      newErrors.hotelName = 'Nama hotel wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = hotelNameRef;
+    }
+
+    if (!hotelAddress.trim()) {
+      newErrors.attractionAddress = 'Alamat wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = hotelAddressRef;
+    } else if (hotelAddress.length < 20) {
+      newErrors.attractionAddress = 'Alamat terlalu singkat (min. 20 karakter)';
+      if (!firstInvalidRef) firstInvalidRef = hotelAddressRef;
+    } else if (hotelAddress.length > 200) {
+      newErrors.attractionAddress =
+        'Alamat tidak boleh lebih dari 200 karakter';
+      if (!firstInvalidRef) firstInvalidRef = hotelAddressRef;
+    }
+
+    if (!hotelDateDepature.trim()) {
+      newErrors.hotelDateDepature = 'Tanggal masuk wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = hotelDateDepatureRef;
+    }
+
+    if (!hotelDateArrival.trim()) {
+      newErrors.hotelDateArrival = 'Tanggal keluar wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = hotelDateArrivalRef;
+    }
+
+    if (
+      hotelDateDepature &&
+      hotelDateArrival &&
+      new Date(hotelDateDepature) >= new Date(hotelDateArrival)
+    ) {
+      newErrors.hotelDateArrival = 'Tanggal keluar harus setelah tanggal masuk';
+      if (!firstInvalidRef) firstInvalidRef = hotelDateArrivalRef;
+    }
+
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
+    if (!hotelTimeDepature.trim() || !timeRegex.test(hotelTimeDepature)) {
+      newErrors.hotelTimeDepature = 'Jam masuk wajib diisi (format hh:mm)';
+      if (!firstInvalidRef) firstInvalidRef = hotelTimeDepatureRef;
+    }
+
+    if (!hotelTimeArrival.trim() || !timeRegex.test(hotelTimeArrival)) {
+      newErrors.hotelTimeArrival = 'Jam keluar wajib diisi (format hh:mm)';
+      if (!firstInvalidRef) firstInvalidRef = hotelTimeArrivalRef;
+    }
+
+    if (!roomType.trim()) {
+      newErrors.roomType = 'Tipe kamar wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = roomTypeRef;
+    }
+
+    if (!bedType.trim()) {
+      newErrors.bedType = 'Tipe kasur wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = bedTypeRef;
+    }
+
+    if (adults < 1) {
+      newErrors.QuestToggleDropdown =
+        'Jumlah tamu harus terdiri dari minimal 1 orang dewasa.';
+      if (!firstInvalidRef) firstInvalidRef = questRef;
+    }
+
+    const parsedPrice = Number(formattedPrice.replace(/[^\d]/g, ''));
+
+    if (!parsedPrice || parsedPrice <= 0) {
+      newErrors.formattedPrice = 'Harga wajib diisi dan harus lebih dari 0';
+      if (!firstInvalidRef) firstInvalidRef = priceRef;
+    }
+
+    const toggleOptions = [
+      wifi,
+      pool,
+      resto,
+      ac,
+      bathtub,
+      tv,
+      rfid,
+      housekeep,
+      laundry,
+    ];
+    const hasSelectedFacility = toggleOptions.some((value) => value);
+
+    if (!hasSelectedFacility) {
+      newErrors.facility = '*Minimal satu fasilitas hotel harus dipilih*';
+      if (!firstInvalidRef) firstInvalidRef = facilityRef;
+    }
+
+    if (descHotel.trim().split(/\s+/).length > 100) {
+      newErrors.descHotel = 'Keterangan tambahan maksimal 100 kata';
+      if (!firstInvalidRef) firstInvalidRef = descHotelRef;
+    }
+    setFormErrors(newErrors);
+    return { isValid: Object.keys(newErrors).length === 0, firstInvalidRef };
+  };
+
+  const downloadVoucherHotel = async () => {
+    if (!voucherHotelRef.current) return;
+
+    const canvas = await html2canvas(voucherHotelRef.current);
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
+    link.click();
+  };
+
+  const handleVoucherHotel = () => {
+    const { isValid, firstInvalidRef } = ValidateVoucherHotel();
+
+    if (isValid) {
+      downloadVoucherHotel();
+    } else if (firstInvalidRef && firstInvalidRef.current) {
+      firstInvalidRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      firstInvalidRef.current.focus();
+    }
+  };
 
   useEffect(() => {
     setRoomOptions(data.roomType);
@@ -105,17 +247,6 @@ const TiketHotel = () => {
     setter(!currentValue);
   };
 
-  const captureScreenshot = async (sectionId, filename) => {
-    const element = document.getElementById(sectionId); // Ambil elemen berdasarkan ID
-    if (element) {
-      const canvas = await html2canvas(element);
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = filename; // Nama file screenshot
-      link.click();
-    }
-  };
-
   const calculateStayDuration = (hotelDateDepature, hotelDateArrival) => {
     const start = new Date(hotelDateDepature);
     const end = new Date(hotelDateArrival);
@@ -144,28 +275,10 @@ const TiketHotel = () => {
           </h3>
 
           <div className='flex ml-4'>
-            <div className='justify-center items-center w-1/3 mr-4'>
+            <div className='justify-center items-center w-2/5 mr-4'>
               <div className='relative'>
                 <input
-                  type='text'
-                  id='floating_outlined'
-                  value={codeBooking}
-                  onChange={(e) => setCodeBooking(e.target.value)}
-                  className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
-                  placeholder=' '
-                />
-                <label
-                  htmlFor='floating_outlined'
-                  className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
-                >
-                  Kode Booking
-                </label>
-              </div>
-            </div>
-
-            <div className='justify-center items-center w-2/3'>
-              <div className='relative'>
-                <input
+                  ref={hotelNameRef}
                   type='text'
                   id='floating_outlined'
                   value={hotelName}
@@ -173,6 +286,11 @@ const TiketHotel = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.hotelName && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.hotelName}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -181,12 +299,11 @@ const TiketHotel = () => {
                 </label>
               </div>
             </div>
-          </div>
 
-          <div className='flex ml-4'>
-            <div className='justify-center items-center w-full'>
+            <div className='justify-center items-center w-3/5'>
               <div className='relative'>
                 <input
+                  ref={hotelAddressRef}
                   type='text'
                   id='floating_outlined'
                   value={hotelAddress}
@@ -194,6 +311,11 @@ const TiketHotel = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.hotelAddress && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.hotelAddress}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -208,6 +330,7 @@ const TiketHotel = () => {
             <div className='justify-center items-center w-1/4 mr-4'>
               <div className='relative'>
                 <input
+                  ref={hotelDateDepatureRef}
                   type='date'
                   id='floating_outlined'
                   value={hotelDateDepature}
@@ -215,6 +338,11 @@ const TiketHotel = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.hotelDateDepature && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.hotelDateDepature}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -248,6 +376,7 @@ const TiketHotel = () => {
                   </svg>
                 </div>
                 <input
+                  ref={hotelTimeDepatureRef}
                   type='time'
                   id='floating_outlined'
                   className='block px-2.5 pb-2 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -257,12 +386,18 @@ const TiketHotel = () => {
                   onChange={(e) => setHotelTimeDepature(e.target.value)}
                   required
                 />
+                {formErrors.hotelTimeDepature && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.hotelTimeDepature}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className='justify-center items-center w-1/4 mr-4'>
               <div className='relative'>
                 <input
+                  ref={hotelDateArrivalRef}
                   type='date'
                   id='floating_outlined'
                   value={hotelDateArrival}
@@ -270,6 +405,11 @@ const TiketHotel = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.hotelDateArrival && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.hotelDateArrival}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -303,6 +443,7 @@ const TiketHotel = () => {
                   </svg>
                 </div>
                 <input
+                  ref={hotelTimeArrivalRef}
                   type='time'
                   id='floating_outlined'
                   className='block px-2.5 pb-2 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -312,6 +453,11 @@ const TiketHotel = () => {
                   onChange={(e) => setHotelTimeArrival(e.target.value)}
                   required
                 />
+                {formErrors.hotelTimeArrival && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.hotelTimeArrival}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -326,6 +472,7 @@ const TiketHotel = () => {
                   Tipe Kamar
                 </label>
                 <select
+                  ref={roomTypeRef}
                   id='floating_outlined'
                   value={roomType}
                   onChange={(e) => setRoomType(e.target.value)}
@@ -338,6 +485,11 @@ const TiketHotel = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.roomType && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.roomType}
+                  </p>
+                )}
               </div>
             </div>
             <div className='justify-center items-center w-1/2'>
@@ -349,6 +501,7 @@ const TiketHotel = () => {
                   Tipe Kasur
                 </label>
                 <select
+                  ref={bedTypeRef}
                   id='floating_outlined'
                   value={bedType}
                   onChange={(e) => setBedType(e.target.value)}
@@ -361,6 +514,11 @@ const TiketHotel = () => {
                     </option>
                   ))}
                 </select>
+                {formErrors.bedType && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.bedType}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -395,6 +553,11 @@ const TiketHotel = () => {
                     />
                   </svg>
                 </button>
+                {formErrors.QuestToggleDropdown && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.QuestToggleDropdown}
+                  </p>
+                )}
                 {isOpenn && (
                   <div className='absolute top-full mt-2 w-full border border-gray-300 rounded-lg bg-white shadow-lg p-4 z-10'>
                     <div className='flex justify-between items-center mb-4'>
@@ -458,17 +621,23 @@ const TiketHotel = () => {
                   Harga Tiket
                 </label>
                 <input
+                  ref={priceRef}
                   type='text'
                   id='floating_outlined'
                   value={formattedPrice}
                   onChange={handlePriceChange}
                   className='block px-2.5 pb-3 py-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
+                {formErrors.formattedPrice && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.formattedPrice}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
-          <div className='flex justify-around'>
+          <div className='flex justify-around' ref={facilityRef}>
             <div className='flex flex-col gap-5'>
               <div className='text-sm font-semibold text-lime-600 -ml-2'>
                 Fasilitas Umum :
@@ -486,6 +655,7 @@ const TiketHotel = () => {
                     } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
                   ></span>
                 </div>
+
                 <div className='ml-4 text-xs text-gray-600 '>Wifi</div>
               </div>
 
@@ -627,9 +797,15 @@ const TiketHotel = () => {
               </div>
             </div>
           </div>
+          {formErrors.facility && (
+            <div className='text-red-500 text-sm text-center mt-2'>
+              {formErrors.facility}
+            </div>
+          )}
           <div className='flex'>
             <div className='relative w-full ml-4'>
               <Textarea
+                ref={descHotelRef}
                 type='text'
                 id='floating_outlined'
                 value={descHotel}
@@ -637,6 +813,11 @@ const TiketHotel = () => {
                 className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=' '
               />
+              {formErrors.descHotel && (
+                <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                  {formErrors.descHotel}
+                </p>
+              )}
               <label
                 htmlFor='floating_outlined'
                 className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -651,16 +832,16 @@ const TiketHotel = () => {
           <h3 className='text-lg font-semibold text-lime-600 mb-4 '>
             Rincian Voucher Hotel
           </h3>
-          <div className='mt-8 mx-4 ' id='sectionTwo'>
-            <div id='sectionOne'>
+          <div className='mt-8 mx-4 ' ref={voucherHotelRef}>
+            <div>
               <div className='bg-white shadow-lg rounded-lg p-8 mb-6 mx-auto '>
                 <div className='flex flex-col gap-2 mt-6 ml-5 mb-4'>
                   <div className='text-lg font-semibold text-lime-800'>
                     {hotelName}
                   </div>
 
-                  <div className='flex text-sm'>
-                    <span className='w-20 text-gray-500'>Alamat </span>
+                  <div className='flex text-xs ml-1'>
+                    <span className='w-32 text-gray-500'>Alamat </span>
                     <span className='pr-2'> : </span>
                     <span className='text-gray-500 pl-2'>{hotelAddress}</span>
                   </div>
@@ -725,9 +906,9 @@ const TiketHotel = () => {
                   <div className='border-slate-200 border-2 rounded-b-lg -mt-6 px-16 py-8 mb-4'>
                     <div className='flex text-sm text-lime-900 font-bold rounded-md py-3 px-4 items-center mr-6 ml-8'>
                       <div className='-mt-2'>
-                        <span className=''>Kode Booking </span>
+                        <span className=''>Nomor Booking </span>
                         <span className='px-2'>:</span>
-                        <span className=''>{codeBooking}</span>
+                        <span className=''></span>
                       </div>
                     </div>
 
@@ -843,10 +1024,9 @@ const TiketHotel = () => {
 
             <div className='mx-auto'>
               <button
+                type='button'
                 className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-                onClick={() =>
-                  captureScreenshot('sectionTwo', 'RincianVoucherHotel.png')
-                }
+                onClick={handleVoucherHotel}
               >
                 Unduh Tiket
               </button>
@@ -858,4 +1038,4 @@ const TiketHotel = () => {
   );
 };
 
-export default TiketHotel;
+export default VoucherHotel;

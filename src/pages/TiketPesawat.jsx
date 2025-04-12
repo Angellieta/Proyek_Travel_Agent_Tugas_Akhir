@@ -11,7 +11,8 @@ import { ImPowerCord } from 'react-icons/im';
 import { Textarea } from 'flowbite-react';
 
 const TiketPesawat = () => {
-  const tiketRef = useRef();
+  const tiketPesawatRef = useRef();
+
   const [selectedCabinClass, setSelectedCabinClass] = useState('');
   const [selectedAirline, setSelectedAirline] = useState('');
   const [selectedOrigin, setSelectedOrigin] = useState('');
@@ -53,6 +54,9 @@ const TiketPesawat = () => {
   const descRef = useRef(null);
   const cabinClassRef = useRef(null);
   const priceRef = useRef(null);
+  const originTerminalRef = useRef(null);
+  const destinationTerminalRef = useRef(null);
+  const facilityRef = useRef(null);
 
   const ValidateTicketAirplane = () => {
     const newErrors = {};
@@ -62,13 +66,6 @@ const TiketPesawat = () => {
       newErrors.selectedAirline = 'Maskapai wajib dipilih';
       if (!firstInvalidRef) firstInvalidRef = airlineRef;
     }
-    const parsedPrice = Number(formattedPrice.replace(/[^\d]/g, ''));
-
-    if (!parsedPrice || parsedPrice <= 0) {
-      newErrors.formattedPrice = 'Harga wajib diisi dan harus lebih dari 0';
-      if (!firstInvalidRef) firstInvalidRef = priceRef;
-    }
-
     if (!selectedOrigin.trim()) {
       newErrors.selectedOrigin = 'Bandara asal wajib dipilih';
       if (!firstInvalidRef) firstInvalidRef = originRef;
@@ -93,25 +90,53 @@ const TiketPesawat = () => {
       newErrors.arrivalTime = 'Jam kedatangan wajib diisi';
       if (!firstInvalidRef) firstInvalidRef = arrivalTimeRef;
     }
+    if (!originTerminal.trim()) {
+      newErrors.originTerminal = 'Terminal Asal wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = originTerminalRef;
+    }
+    if (!destinationTerminal.trim()) {
+      newErrors.destinationTerminal = 'Terminal Tujuan wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = destinationTerminalRef;
+    }
     if (!/^\d{4}$/.test(aircraftNumber)) {
       newErrors.aircraftNumber = 'Nomor pesawat harus 4 digit angka';
       if (!firstInvalidRef) firstInvalidRef = aircraftNumberRef;
     }
-    const bagasiValue = Number(baggage);
-    if (isNaN(bagasiValue) || bagasiValue > 20) {
-      newErrors.baggage = 'Bagasi maksimal 20kg';
+    if (!selectedCabinClass.trim()) {
+      newErrors.selectedCabinClass = 'Kelas kabin wajib dipilih';
+      if (!firstInvalidRef) firstInvalidRef = cabinClassRef;
     }
+    const baggageValue = Number(baggage);
+    if (isNaN(baggageValue) || baggageValue > 20 || baggageValue <= 0) {
+      newErrors.baggage = 'Bagasi harus diisi dan maksimal 20kg';
+    }
+
     const cabinBaggageValue = Number(cabinBaggage);
-    if (isNaN(cabinBaggageValue) || cabinBaggageValue > 7) {
-      newErrors.cabinBaggage = 'Bagasi Kabin maksimal 7 kg';
+    if (
+      isNaN(cabinBaggageValue) ||
+      cabinBaggageValue > 7 ||
+      cabinBaggageValue <= 0
+    ) {
+      newErrors.cabinBaggage = 'Bagasi Kabin harus diisi dan maksimal 7kg';
+    }
+
+    const parsedPrice = Number(formattedPrice.replace(/[^\d]/g, ''));
+
+    if (!parsedPrice || parsedPrice <= 0) {
+      newErrors.formattedPrice = 'Harga wajib diisi dan harus lebih dari 0';
+      if (!firstInvalidRef) firstInvalidRef = priceRef;
     }
     if (desc.trim().split(/\s+/).length > 100) {
       newErrors.desc = 'Keterangan tambahan maksimal 100 kata';
       if (!firstInvalidRef) firstInvalidRef = descRef;
     }
-    if (!selectedCabinClass.trim()) {
-      newErrors.selectedCabinClass = 'Kelas kabin wajib dipilih';
-      if (!firstInvalidRef) firstInvalidRef = cabinClassRef;
+
+    const toggleOptions = [inFlightMeal, inFlightEntertainment, powerUsb, wifi];
+    const hasSelectedFacility = toggleOptions.some((value) => value);
+
+    if (!hasSelectedFacility) {
+      newErrors.facility = '*Minimal satu fasilitas pesawat harus dipilih*';
+      if (!firstInvalidRef) firstInvalidRef = facilityRef;
     }
 
     setFormErrors(newErrors);
@@ -122,10 +147,10 @@ const TiketPesawat = () => {
     setter(!currentValue);
   };
 
-  const downloadTiket = async () => {
-    if (!tiketRef.current) return;
+  const downloadTiketPesawat = async () => {
+    if (!tiketPesawatRef.current) return;
 
-    const canvas = await html2canvas(tiketRef.current);
+    const canvas = await html2canvas(tiketPesawatRef.current);
     const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
@@ -133,11 +158,11 @@ const TiketPesawat = () => {
     link.click();
   };
 
-  const handleTiket = () => {
+  const handleTiketPesawat = () => {
     const { isValid, firstInvalidRef } = ValidateTicketAirplane();
 
     if (isValid) {
-      downloadTiket(); // Fungsi download tiket
+      downloadTiketPesawat();
     } else if (firstInvalidRef && firstInvalidRef.current) {
       firstInvalidRef.current.scrollIntoView({
         behavior: 'smooth',
@@ -213,10 +238,7 @@ const TiketPesawat = () => {
 
   return (
     <div className='p-8 mx-auto max-w-6xl'>
-      <div
-        // onSubmit={handleSubmit}
-        className='my-28 p-24 bg-white shadow-lg rounded-2xl'
-      >
+      <div className='my-28 p-24 bg-white shadow-lg rounded-2xl'>
         <h2 className='text-2xl font-semibold mb-12 text-center'>
           Tiket Penerbangan
         </h2>
@@ -227,9 +249,9 @@ const TiketPesawat = () => {
         </h3>
 
         <div className='flex'>
-          <div className='w-1/2'>
+          <div className='w-1/2 '>
             {/* Pilihan Maskapai */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -238,7 +260,7 @@ const TiketPesawat = () => {
                   Maskapai
                 </label>
                 <select
-                  ref={aircraftNumberRef}
+                  ref={airlineRef}
                   id='floating_outlined'
                   value={selectedAirline}
                   onChange={handleAirlineChange}
@@ -254,7 +276,7 @@ const TiketPesawat = () => {
                   ))}
                 </select>
                 {formErrors.selectedAirline && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.selectedAirline}
                   </p>
                 )}
@@ -262,7 +284,7 @@ const TiketPesawat = () => {
             </div>
 
             {/* Pilihan Bandara Asal */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -285,7 +307,7 @@ const TiketPesawat = () => {
                   ))}
                 </select>
                 {formErrors.selectedOrigin && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.selectedOrigin}
                   </p>
                 )}
@@ -293,7 +315,7 @@ const TiketPesawat = () => {
             </div>
 
             {/* Pilihan Bandara Tujuan */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -316,7 +338,7 @@ const TiketPesawat = () => {
                   ))}
                 </select>
                 {formErrors.selectedDestination && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.selectedDestination}
                   </p>
                 )}
@@ -324,9 +346,9 @@ const TiketPesawat = () => {
             </div>
           </div>
 
-          <div className='w-1/2'>
+          <div className='w-1/2 '>
             {/* Tanggal Keberangkatan dan Kedatangan */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -344,7 +366,7 @@ const TiketPesawat = () => {
                   className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
                 {formErrors.departureDate && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.departureDate}
                   </p>
                 )}
@@ -352,7 +374,7 @@ const TiketPesawat = () => {
             </div>
 
             {/* Waktu Keberangkatan dan Kedatangan */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -387,7 +409,7 @@ const TiketPesawat = () => {
                     onChange={(e) => setDepartureTime(e.target.value)}
                   />
                   {formErrors.departureTime && (
-                    <p className='text-red-500 text-xs mt-1 ml-2'>
+                    <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                       {formErrors.departureTime}
                     </p>
                   )}
@@ -395,7 +417,7 @@ const TiketPesawat = () => {
               </div>
             </div>
             {/* Terminal Asal */}
-            <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+            <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
               <label
                 htmlFor='floating_outlined'
                 className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
@@ -403,23 +425,24 @@ const TiketPesawat = () => {
                 Terminal Asal
               </label>
               <input
+                ref={originTerminalRef}
                 type='text'
                 id='floating_outlined'
                 value={originTerminal}
                 onChange={(e) => setOriginTerminal(e.target.value)}
-                className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg  px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=''
               />
               {formErrors.originTerminal && (
-                <p className='text-red-500 text-xs mt-1 ml-2'>
+                <span className='absolute top-full mt-1 ml-2 text-xs text-red-500'>
                   {formErrors.originTerminal}
-                </p>
+                </span>
               )}
             </div>
           </div>
 
-          <div className='w-1/2'>
-            <div className='mb-6 pl-4 text-sm'>
+          <div className='w-1/2 '>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -436,14 +459,14 @@ const TiketPesawat = () => {
                   className='block px-2.5 pb-2 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
                 {formErrors.arrivalDate && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.arrivalDate}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -478,7 +501,7 @@ const TiketPesawat = () => {
                     onChange={(e) => setArrivalTime(e.target.value)}
                   />
                   {formErrors.arrivalTime && (
-                    <p className='text-red-500 text-xs mt-1 ml-2'>
+                    <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                       {formErrors.arrivalTime}
                     </p>
                   )}
@@ -486,7 +509,7 @@ const TiketPesawat = () => {
               </div>
             </div>
             {/* Terminal Tujuan */}
-            <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+            <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
               <label
                 htmlFor='floating_outlined'
                 className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
@@ -494,20 +517,26 @@ const TiketPesawat = () => {
                 Terminal Tujuan
               </label>
               <input
+                ref={destinationTerminalRef}
                 type='text'
                 id='floating_outlined'
                 value={destinationTerminal}
                 onChange={(e) => setDestinationTerminal(e.target.value)}
-                className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg  px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=''
               />
+              {formErrors.destinationTerminal && (
+                <span className='absolute top-full mt-1 ml-2 text-xs text-red-500'>
+                  {formErrors.destinationTerminal}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
         <div className='flex'>
           <div className='w-1/2'>
-            <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+            <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
               <label
                 htmlFor='floating_outlined'
                 className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
@@ -532,7 +561,7 @@ const TiketPesawat = () => {
           </div>
           <div className='w-1/2'>
             {/* Pilihan Kelas Kabin */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -554,7 +583,7 @@ const TiketPesawat = () => {
                   <option value='First Class'>First Class</option>
                 </select>
                 {formErrors.selectedCabinClass && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.selectedCabinClass}
                   </p>
                 )}
@@ -564,10 +593,10 @@ const TiketPesawat = () => {
           <div className='w-1/2'>
             {/* Waktu Tempuh */}
             <div className='flex w-full'>
-              <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+              <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
                 <label
                   htmlFor='floating_outlined'
-                  className='absolute text-bases text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
+                  className='absolute rounded-lg text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-100  dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
                 >
                   Waktu Tempuh
                 </label>
@@ -576,8 +605,9 @@ const TiketPesawat = () => {
                   id='floating_outlined'
                   value={flightHours}
                   onChange={(e) => setFlightHours(e.target.value)}
-                  className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                  className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 bg-gray-100 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=''
+                  disabled
                 />
                 <div className='flex -mr-px'>
                   <span className='flex items-center pb-2.5 pt-6 bg-transparent font-medium text-gray-500 border-gray-300 leading-normal rounded-lg rounded-l-none border border-l-0 px-3 whitespace-no-wrap text-grey-dark text-xs'>
@@ -586,18 +616,19 @@ const TiketPesawat = () => {
                 </div>
               </div>
 
-              <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+              <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
                 <label
                   htmlFor='floating_outlined'
-                  className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
+                  className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-100 dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
                 ></label>
                 <input
                   type='text'
                   id='floating_outlined'
                   value={flightMinutes}
                   onChange={(e) => setFlightMinutes(e.target.value)}
-                  className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                  className='flex-shrink flex-grow flex-auto pb-2.5 pt-6 pl-4 text-gray-700 text-xs leading-normal border w-px border-gray-300 bg-gray-100 rounded-lg rounded-r-none px-3 relative dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=''
+                  disabled
                 />
                 <div className='flex -mr-px'>
                   <span className='flex items-center pb-2.5 pt-6 bg-transparent font-medium text-gray-500 border-gray-300 leading-normal rounded-lg rounded-l-none border border-l-0 px-3 whitespace-no-wrap text-grey-dark text-xs'>
@@ -613,7 +644,7 @@ const TiketPesawat = () => {
           <div className='w-1/2'>
             {/* Bagasi */}
             <div className='flex'>
-              <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+              <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
@@ -641,7 +672,7 @@ const TiketPesawat = () => {
                 </div>
               </div>
 
-              <div className='flex flex-wrap items-stretch w-full mb-6 pl-4 text-sm relative'>
+              <div className='flex flex-wrap items-stretch w-full mb-10 pl-4 text-sm relative'>
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-5'
@@ -672,7 +703,7 @@ const TiketPesawat = () => {
           </div>
           <div className='w-1/2'>
             {/* Harga Tiket */}
-            <div className='mb-6 pl-4 text-sm'>
+            <div className='mb-10 pl-4 text-sm'>
               <div className='relative'>
                 <label
                   htmlFor='floating_outlined'
@@ -689,7 +720,7 @@ const TiketPesawat = () => {
                   className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
                 {formErrors.formattedPrice && (
-                  <p className='text-red-500 text-xs mt-1 ml-2'>
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                     {formErrors.formattedPrice}
                   </p>
                 )}
@@ -710,7 +741,7 @@ const TiketPesawat = () => {
               placeholder=' '
             />
             {formErrors.desc && (
-              <p className='text-red-500 text-xs mt-1 ml-2'>
+              <p className='absolute text-red-500 text-xs mt-1 ml-2'>
                 {formErrors.desc}
               </p>
             )}
@@ -724,7 +755,7 @@ const TiketPesawat = () => {
         </div>
 
         {/* Fasilitas */}
-        <div>
+        <div ref={facilityRef}>
           <h3 className='text-lg font-semibold text-lime-600 mb-4 mt-4 ml-4'>
             Fasilitas:
           </h3>
@@ -803,6 +834,11 @@ const TiketPesawat = () => {
             </div>
           </div>
         </div>
+        {formErrors.facility && (
+          <div className='text-red-500 text-sm text-center mt-2'>
+            {formErrors.facility}
+          </div>
+        )}
 
         <div className='container mx-auto p-6'>
           <div className='mt-8'>
@@ -811,7 +847,7 @@ const TiketPesawat = () => {
             </h3>
             <div className='bg-white p-8 mb-8'>
               <div>
-                <div ref={tiketRef}>
+                <div ref={tiketPesawatRef}>
                   <div className='flex flex-row items-start w-full justify-center border-slate-200 border-2 shadow-lg rounded-lg p-8 mt-5'>
                     <div className='flex gap-32'>
                       {/* Logo Maskapai + Nama Maskapai */}
@@ -908,6 +944,13 @@ const TiketPesawat = () => {
                       <h4 className='text-md font-semibold text-gray-700 mb-3 '>
                         Detail Penerbangan
                       </h4>
+                      <div className='flex text-xs'>
+                        <span className='w-32 text-gray-500'>
+                          Nomor Booking{' '}
+                        </span>
+                        <span className='pr-2'> : </span>
+                        <span className='text-gray-500 pl-2'></span>
+                      </div>
                       <div className=' p-6 space-y-6 w-full'>
                         {/* Timeline & Flight Details */}
                         <div className='relative flex p-6'>
@@ -1139,7 +1182,7 @@ const TiketPesawat = () => {
             <button
               type='button'
               className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-              onClick={handleTiket}
+              onClick={handleTiketPesawat}
             >
               Unduh Tiket
             </button>

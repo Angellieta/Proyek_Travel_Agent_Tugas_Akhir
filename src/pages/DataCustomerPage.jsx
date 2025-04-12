@@ -60,63 +60,89 @@ const DataCustomerPage = () => {
 
           <div className='flex flex-col md:flex-row w-full gap-4  '>
             <div className='w-1/2 relative'>
-              <label className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'>
-                Nama Customer
-              </label>
               <input
+                id='floating_outlined'
                 type='text'
                 value={namaCustomer}
                 onChange={(e) => setNamaCustomer(e.target.value)}
                 className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                placeholder=' '
               />
+              <label
+                htmlFor='floating_outlined'
+                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
+              >
+                Nama Customer
+              </label>
               {namaError && (
-                <p className='text-red-500 text-xs ml-2'>{namaError}</p>
+                <p className='absolute text-red-500 text-xs ml-2'>
+                  {namaError}
+                </p>
               )}
             </div>
 
             <div className='w-1/2 relative'>
-              <label className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'>
-                No Telepon Customer
-              </label>
               <input
+                id='floating_outlined'
                 type='text'
                 value={noTelpCustomer}
                 onChange={(e) => setNoTelpCustomer(e.target.value)}
                 className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                placeholder=''
               />
+              <label
+                htmlFor='floating_outlined'
+                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
+              >
+                No Telepon Customer
+              </label>
               {telpError && (
-                <p className='text-red-500 text-xs ml-2'>{telpError}</p>
+                <p className='absolute text-red-500 text-xs ml-2'>
+                  {telpError}
+                </p>
               )}
             </div>
           </div>
           <div className='flex flex-col md:flex-row gap-4 text-sm text-slate-700'>
             <div className='w-1/2 relative'>
-              <label className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'>
-                Email Customer
-              </label>
               <input
+                id='floating_outlined'
                 type='email'
                 value={emailCustomer}
                 onChange={(e) => setEmailCustomer(e.target.value)}
                 className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                placeholder=' '
               />
+              <label
+                htmlFor='floating_outlined'
+                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
+              >
+                Email Customer
+              </label>
               {emailError && (
-                <p className='text-red-500 text-xs ml-2'>{emailError}</p>
+                <p className='absolute text-red-500 text-xs ml-2'>
+                  {emailError}
+                </p>
               )}
             </div>
 
             <div className='w-1/2 relative'>
-              <label className='absolute text-base text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'>
-                Tanggal Input
-              </label>
               <input
+                id='floating_outlined'
                 type='date'
                 value={tglInput}
                 onChange={(e) => setTglInput(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                className='block px-2.5 pb-2.5 pt-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                placeholder=' '
               />
+              <label
+                htmlFor='floating_outlined'
+                className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
+              >
+                Tanggal Input
+              </label>
               {tglError && (
-                <p className='text-red-500 text-xs ml-2'>{tglError}</p>
+                <p className='absolute text-red-500 text-xs ml-2'>{tglError}</p>
               )}
             </div>
           </div>

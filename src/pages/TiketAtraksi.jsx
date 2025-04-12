@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 import { format } from 'date-fns';
 
 import html2canvas from 'html2canvas';
 
 const TiketAtraksi = () => {
+  const tiketAtraksiRef = useRef(null);
   const [attractionName, setAttractionName] = useState('');
   const [dateStart, setDateStart] = useState('');
   const [timeOpen, setTimeOpen] = useState('');
@@ -13,6 +14,98 @@ const TiketAtraksi = () => {
   const [attractionAddress, setAttractionAddress] = useState('');
 
   const [attractionDesc, setAttractionDesc] = useState('');
+
+  const [formErrors, setFormErrors] = useState({});
+
+  const attractionNameRef = useRef(null);
+  const dateStartRef = useRef(null);
+  const timeOpenRef = useRef(null);
+  const timeCloseRef = useRef(null);
+  const attractionAddressRef = useRef(null);
+  const priceRef = useRef(null);
+  const attractionDescRef = useRef(null);
+  const imageUploadRef = useRef(null);
+
+  const validateAtraksiTiket = () => {
+    const newErrors = {};
+    let firstInvalidRef = null;
+
+    if (!attractionName.trim()) {
+      newErrors.attractionName = 'Nama atraksi wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = attractionNameRef;
+    }
+
+    if (!dateStart) {
+      newErrors.dateStart = 'Tanggal wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = dateStartRef;
+    }
+
+    if (!timeOpen) {
+      newErrors.timeOpen = 'Jam buka wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = timeOpenRef;
+    }
+
+    if (!timeClose) {
+      newErrors.timeClose = 'Jam tutup wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = timeCloseRef;
+    }
+
+    if (!attractionAddress.trim()) {
+      newErrors.attractionAddress = 'Alamat wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = attractionAddressRef;
+    } else if (attractionAddress.length < 20) {
+      newErrors.attractionAddress = 'Alamat terlalu singkat (min. 20 karakter)';
+      if (!firstInvalidRef) firstInvalidRef = attractionAddressRef;
+    } else if (attractionAddress.length > 200) {
+      newErrors.attractionAddress =
+        'Alamat tidak boleh lebih dari 200 karakter';
+      if (!firstInvalidRef) firstInvalidRef = attractionAddressRef;
+    }
+
+    if (attractionDesc.trim().split(/\s+/).length > 100) {
+      newErrors.attractionDesc = 'Keterangan maksimal 100 kata';
+      if (!firstInvalidRef) firstInvalidRef = attractionDescRef;
+    }
+    if (selectedFileNames.length === 0) {
+      newErrors.selectedImages = 'Foto tampilan atraksi wajib diunggah';
+      if (!firstInvalidRef) firstInvalidRef = imageUploadRef;
+    }
+
+    const parsedPrice = Number(formattedPrice.replace(/[^\d]/g, ''));
+    if (!parsedPrice || parsedPrice <= 0) {
+      newErrors.formattedPrice = 'Harga wajib diisi dan harus lebih dari 0';
+      if (!firstInvalidRef) firstInvalidRef = priceRef;
+    }
+
+    setFormErrors(newErrors);
+
+    return { isValid: Object.keys(newErrors).length === 0, firstInvalidRef };
+  };
+
+  const downloadTiketAtraksi = async () => {
+    if (!tiketAtraksiRef.current) return;
+
+    const canvas = await html2canvas(tiketAtraksiRef.current);
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `Tiket-Atraksi-${attractionName}-${dateStart}.png`;
+    link.click();
+  };
+
+  const handleTiketAtraksi = () => {
+    const { isValid, firstInvalidRef } = validateAtraksiTiket();
+
+    if (isValid) {
+      downloadTiketAtraksi();
+    } else if (firstInvalidRef && firstInvalidRef.current) {
+      firstInvalidRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      firstInvalidRef.current.focus();
+    }
+  };
 
   const [isOpen, setIsOpen] = useState(false);
   const handleToggleDropdown = () => {
@@ -40,23 +133,22 @@ const TiketAtraksi = () => {
     }).format(numberValue);
   };
 
-  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedFileNames, setSelectedFileNames] = useState([]);
+  const [selectedImageURL, setSelectedImageURL] = useState([]);
 
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
-    setSelectedImages(imageUrls);
-  };
 
-  const captureScreenshot = async (sectionId, filename) => {
-    const element = document.getElementById(sectionId); // Ambil elemen berdasarkan ID
-    if (element) {
-      const canvas = await html2canvas(element);
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = filename; // Nama file screenshot
-      link.click();
-    }
+    // Simpan nama-nama file
+    const fileNames = files.map((file) => file.name);
+    setSelectedFileNames(fileNames);
+
+    // Simpan URL untuk setiap file
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    setSelectedImageURL(imageUrls);
+
+    // Hapus error jika ada
+    setFormErrors((prev) => ({ ...prev, selectedImages: null }));
   };
 
   return (
@@ -76,6 +168,7 @@ const TiketAtraksi = () => {
             <div className='justify-center items-center w-1/2 mr-4'>
               <div className='relative'>
                 <input
+                  ref={attractionNameRef}
                   type='text'
                   id='floating_outlined'
                   value={attractionName}
@@ -83,6 +176,11 @@ const TiketAtraksi = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.attractionName && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.attractionName}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -94,6 +192,7 @@ const TiketAtraksi = () => {
             <div className='justify-center items-center w-1/4 mr-4'>
               <div className='relative'>
                 <input
+                  ref={dateStartRef}
                   type='date'
                   id='floating_outlined'
                   value={dateStart}
@@ -101,6 +200,11 @@ const TiketAtraksi = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.dateStart && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.dateStart}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -133,6 +237,7 @@ const TiketAtraksi = () => {
                   </svg>
                 </div>
                 <input
+                  ref={timeOpenRef}
                   type='time'
                   id='floating_outlined'
                   className='block px-2.5 pb-2 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -142,6 +247,11 @@ const TiketAtraksi = () => {
                   onChange={(e) => setTimeOpen(e.target.value)}
                   required
                 />
+                {formErrors.timeOpen && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.timeOpen}
+                  </p>
+                )}
               </div>
             </div>
             <div className='justify-center items-center w-1/6'>
@@ -168,6 +278,7 @@ const TiketAtraksi = () => {
                   </svg>
                 </div>
                 <input
+                  ref={timeCloseRef}
                   type='time'
                   id='floating_outlined'
                   className='block px-2.5 pb-2 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
@@ -177,6 +288,11 @@ const TiketAtraksi = () => {
                   onChange={(e) => setTimeClose(e.target.value)}
                   required
                 />
+                {formErrors.timeClose && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.timeClose}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -185,6 +301,7 @@ const TiketAtraksi = () => {
             <div className='justify-center items-center  w-full'>
               <div className='relative'>
                 <input
+                  ref={attractionAddressRef}
                   type='text'
                   id='floating_outlined'
                   value={attractionAddress}
@@ -192,6 +309,11 @@ const TiketAtraksi = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.attractionAddress && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.attractionAddress}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -206,6 +328,7 @@ const TiketAtraksi = () => {
             <div className='justify-center items-center w-full'>
               <div className='relative'>
                 <input
+                  ref={attractionDescRef}
                   type='text'
                   id='floating_outlined'
                   value={attractionDesc}
@@ -213,6 +336,11 @@ const TiketAtraksi = () => {
                   className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
                 />
+                {formErrors.attractionDesc && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.attractionDesc}
+                  </p>
+                )}
                 <label
                   htmlFor='floating_outlined'
                   className='absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-lime-600 peer-focus:dark:text-lime-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1'
@@ -240,9 +368,13 @@ const TiketAtraksi = () => {
                     Pilih File
                   </label>
                   <div className='flex-1 px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-r-lg bg-gray-50'>
-                    Tidak ada file yang dipilih
+                    {selectedFileNames.length > 0
+                      ? selectedFileNames.join(', ')
+                      : 'Tidak ada file yang dipilih'}
                   </div>
+
                   <input
+                    ref={imageUploadRef}
                     id='multiple_files_input'
                     type='file'
                     multiple
@@ -251,6 +383,11 @@ const TiketAtraksi = () => {
                   />
                 </div>
               </div>
+              {formErrors.handleFileChange && (
+                <p className='text-red-500 text-xs mt-1 ml-2'>
+                  {formErrors.handleFileChange}
+                </p>
+              )}
             </div>
             <div className='justify-center items-center w-1/2 mt-4'>
               <div className='relative'>
@@ -261,12 +398,18 @@ const TiketAtraksi = () => {
                   Harga Tiket
                 </label>
                 <input
+                  ref={priceRef}
                   type='text'
                   id='floating_outlined'
                   value={formattedPrice}
                   onChange={handlePriceChange}
                   className='block px-2.5 pb-3 py-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 />
+                {formErrors.formattedPrice && (
+                  <p className='absolute text-red-500 text-xs mt-1 ml-2'>
+                    {formErrors.formattedPrice}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -276,11 +419,8 @@ const TiketAtraksi = () => {
               <h3 className='text-lg font-semibold text-lime-600 mb-4'>
                 Rincian Tiket Atraksi
               </h3>
-              <div
-                id='sectionTwo'
-                className='bg-white rounded-lg  mb-4 mx-auto'
-              >
-                <div id='sectionOne'>
+              <div className='bg-white rounded-lg  mb-4 mx-auto'>
+                <div ref={tiketAtraksiRef}>
                   <div className='bg-white shadow-lg rounded-lg p-8 mb-8'>
                     <div className='text-xl font-medium text-gray-800 mb-2 ml-4'>
                       {attractionName}
@@ -329,7 +469,7 @@ const TiketAtraksi = () => {
                     {isOpen && (
                       <div className='flex flex-row gap-8 p-4 -mt-8 border-slate-200 border-2 rounded-b-lg px-16 py-8 mb-4'>
                         <div className='justify-center items-center w-1/3'>
-                          {selectedImages.map((image, index) => (
+                          {selectedImageURL.map((image, index) => (
                             <div
                               key={index}
                               className='w-full h-80 border rounded-lg overflow-hidden'
@@ -346,7 +486,18 @@ const TiketAtraksi = () => {
                           <div className='text-xl font-medium text-gray-700 mb-2'>
                             {attractionName}
                           </div>
-                          <div className='text-xs text-justify font-medium text-gray-700 ml-0.5 mb-6'>
+                          <table className='text-gray-700 mb-3'>
+                            <tr>
+                              <td className='text-xs font-bold'>
+                                Nomor Booking{' '}
+                              </td>
+                              <td className='text-xs text-center'>
+                                &nbsp; &nbsp;:&nbsp;&nbsp;
+                              </td>
+                              <td className='text-xs ml-0.5 mb-3'></td>
+                            </tr>
+                          </table>
+                          <div className='text-xs text-justify font-medium text-gray-700 ml-0.5 mb-4'>
                             {attractionDesc}
                             <div className='mt-4'>
                               {' '}
@@ -395,10 +546,8 @@ const TiketAtraksi = () => {
               </div>
               <div className='mx-auto'>
                 <button
-                  className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right'
-                  onClick={() =>
-                    captureScreenshot('sectionTwo', 'RincianTiketAtraksi.png')
-                  }
+                  className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
+                  onClick={handleTiketAtraksi}
                 >
                   Unduh Tiket
                 </button>
