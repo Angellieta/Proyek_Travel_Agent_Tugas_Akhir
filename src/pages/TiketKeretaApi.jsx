@@ -94,7 +94,7 @@ const TiketKeretaApi = () => {
     }
 
     if (trainDesc.trim().split(/\s+/).length > 100) {
-      newErrors.trainDesc = 'Keterangan maksimal 100 kata';
+      newErrors.trainDesc = 'Keterangan nomor kursi maksimal 100 kata';
       if (!firstInvalidRef) firstInvalidRef = trainDescRef;
     }
 

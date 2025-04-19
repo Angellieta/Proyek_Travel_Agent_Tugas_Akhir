@@ -62,8 +62,11 @@ const TiketAtraksi = () => {
       if (!firstInvalidRef) firstInvalidRef = attractionAddressRef;
     }
 
-    if (attractionDesc.trim().split(/\s+/).length > 100) {
-      newErrors.attractionDesc = 'Keterangan maksimal 100 kata';
+    if (!attractionDesc.trim()) {
+      newErrors.attractionDesc = 'Deskripsi atraksi wajib diisi';
+      if (!firstInvalidRef) firstInvalidRef = attractionDescRef;
+    } else if (attractionDesc.trim().split(/\s+/).length > 100) {
+      newErrors.attractionDesc = 'Deskripsi atraksi maksimal 100 kata';
       if (!firstInvalidRef) firstInvalidRef = attractionDescRef;
     }
     if (selectedFileNames.length === 0) {

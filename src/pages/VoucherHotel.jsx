@@ -74,14 +74,13 @@ const VoucherHotel = () => {
     }
 
     if (!hotelAddress.trim()) {
-      newErrors.attractionAddress = 'Alamat wajib diisi';
+      newErrors.hotelAddress = 'Alamat wajib diisi';
       if (!firstInvalidRef) firstInvalidRef = hotelAddressRef;
     } else if (hotelAddress.length < 20) {
-      newErrors.attractionAddress = 'Alamat terlalu singkat (min. 20 karakter)';
+      newErrors.hotelAddress = 'Alamat terlalu singkat (min. 20 karakter)';
       if (!firstInvalidRef) firstInvalidRef = hotelAddressRef;
     } else if (hotelAddress.length > 200) {
-      newErrors.attractionAddress =
-        'Alamat tidak boleh lebih dari 200 karakter';
+      newErrors.hotelAddress = 'Alamat tidak boleh lebih dari 200 karakter';
       if (!firstInvalidRef) firstInvalidRef = hotelAddressRef;
     }
 
@@ -107,12 +106,12 @@ const VoucherHotel = () => {
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
     if (!hotelTimeDepature.trim() || !timeRegex.test(hotelTimeDepature)) {
-      newErrors.hotelTimeDepature = 'Jam masuk wajib diisi (format hh:mm)';
+      newErrors.hotelTimeDepature = 'Jam masuk wajib diisi';
       if (!firstInvalidRef) firstInvalidRef = hotelTimeDepatureRef;
     }
 
     if (!hotelTimeArrival.trim() || !timeRegex.test(hotelTimeArrival)) {
-      newErrors.hotelTimeArrival = 'Jam keluar wajib diisi (format hh:mm)';
+      newErrors.hotelTimeArrival = 'Jam keluar wajib diisi ';
       if (!firstInvalidRef) firstInvalidRef = hotelTimeArrivalRef;
     }
 
