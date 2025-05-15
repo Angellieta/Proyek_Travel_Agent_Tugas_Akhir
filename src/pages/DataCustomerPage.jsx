@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const DataCustomerPage = () => {
   const navigate = useNavigate();
+  const username = location.state || {};
 
   const [namaCustomer, setNamaCustomer] = useState('');
   const [noTelpCustomer, setNoTelpCustomer] = useState('');
@@ -46,7 +47,13 @@ const DataCustomerPage = () => {
     }
 
     if (valid) {
-      navigate('/kategoritiket');
+      navigate('/kategoritiket', {
+        state: {
+          namaCustomer,
+          tglInput,
+          username,
+        },
+      });
     }
   };
 

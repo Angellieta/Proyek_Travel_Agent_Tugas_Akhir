@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { TbManFilled } from 'react-icons/tb';
 import { ImManWoman } from 'react-icons/im';
 import { Textarea } from 'flowbite-react';
@@ -30,6 +31,25 @@ import { MdOutlineLocalLaundryService } from 'react-icons/md';
 
 const VoucherHotel = () => {
   const voucherHotelRef = useRef();
+
+  const popupRef = useRef();
+
+  const handleDownloadPopup = async () => {
+    if (popupRef.current) {
+      const canvas = await html2canvas(popupRef.current);
+      const dataURL = canvas.toDataURL('image/png');
+
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
+      link.click();
+    }
+  };
+
+  const location = useLocation();
+  const { namaCustomer, tglInput } = location.state;
+
+  const [showPopup, setShowPopup] = useState(false);
 
   const [hotelName, setHotelName] = useState('');
 
@@ -171,7 +191,7 @@ const VoucherHotel = () => {
     const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
-    link.download = `Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
+    link.download = `Preview-Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
     link.click();
   };
 
@@ -400,6 +420,7 @@ const VoucherHotel = () => {
                   type='date'
                   id='floating_outlined'
                   value={hotelDateArrival}
+                  min={hotelDateDepature}
                   onChange={(e) => setHotelDateArrival(e.target.value)}
                   className='block px-2.5 pb-2.5 pt-4 pl-4  w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
@@ -835,7 +856,7 @@ const VoucherHotel = () => {
             <div>
               <div className='bg-white shadow-lg rounded-lg p-8 mb-6 mx-auto '>
                 <div className='flex flex-col gap-2 mt-6 ml-5 mb-4'>
-                  <div className='text-lg font-semibold text-lime-800'>
+                  <div className='text-lg font-semibold text-lime-800 ml-0.5'>
                     {hotelName}
                   </div>
 
@@ -847,63 +868,69 @@ const VoucherHotel = () => {
                 </div>
 
                 <hr className='my-6' />
-
-                <div className='flex justify-center gap-10'>
-                  <div>
-                    <div className='text-slate-600 font-medium'>
-                      {' '}
-                      {hotelDateDepature &&
-                        format(new Date(hotelDateDepature), 'd MMMM yyyy')}
+                <div className='flex items-center justify-between px-8 -ml-2'>
+                  <div className='flex justify-center gap-10'>
+                    <div>
+                      <div className='text-slate-600 text-sm font-medium'>
+                        {' '}
+                        {hotelDateDepature &&
+                          format(new Date(hotelDateDepature), 'd MMMM yyyy')}
+                      </div>
+                      <div className='text-xs text-slate-600'>
+                        {' '}
+                        {hotelTimeDepature}{' '}
+                      </div>
                     </div>
-                    <div className='text-sm text-slate-600'>
-                      {' '}
-                      {hotelTimeDepature}{' '}
+                    <div>
+                      <div className='flex items-center justify-between w-40 mt-2 mb-2'>
+                        <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+                        <div className='flex-grow border-lime-600 border-t-[0.5px]'></div>
+                        <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+                      </div>
+                      <div className='text-center text-xs text-slate-600'>
+                        {' '}
+                        {stayDuration}{' '}
+                      </div>
+                    </div>
+                    <div className='text-right'>
+                      <div className='text-slate-600 text-sm font-medium'>
+                        {hotelDateArrival &&
+                          format(
+                            new Date(hotelDateArrival),
+                            'd MMMM yyyy'
+                          )}{' '}
+                        {}{' '}
+                      </div>
+                      <div className='text-xs text-slate-600 '>
+                        {' '}
+                        {hotelTimeArrival}{' '}
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div className='flex items-center justify-between w-40 mt-2 mb-2'>
-                      <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
-                      <div className='flex-grow border-lime-600 border-t-[0.5px]'></div>
-                      <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+
+                  <div className='text-right flex flex-col justify-between items-right align-middle gap-3 text-sm '>
+                    <div>
+                      <span className='text-orange-500 font-bold '>
+                        {formatCurrency(ticketPrice)}
+                      </span>{' '}
+                      /pax
                     </div>
-                    <div className='text-center text-sm text-slate-600'>
-                      {' '}
-                      {stayDuration}{' '}
+
+                    <div className='text-right'>
+                      <button
+                        onClick={handleToggleDropdown}
+                        className='text-xs text-lime-700 hover:underline'
+                      >
+                        Lihat Detail {isOpen ? '▲' : '▼'}
+                      </button>
                     </div>
                   </div>
-                  <div className='text-right'>
-                    <div className='text-slate-600 font-medium'>
-                      {hotelDateArrival &&
-                        format(new Date(hotelDateArrival), 'd MMMM yyyy')}{' '}
-                      {}{' '}
-                    </div>
-                    <div className='text-sm text-slate-600 '>
-                      {' '}
-                      {hotelTimeArrival}{' '}
-                    </div>
-                  </div>
-                </div>
-
-                <div className='text-right mr-6 mb-4 mt-6'>
-                  <span className='text-orange-500 font-bold '>
-                    {formatCurrency(ticketPrice)}
-                  </span>{' '}
-                  /pax
-                </div>
-
-                <div className='flex justify-end mr-6'>
-                  <button
-                    onClick={handleToggleDropdown}
-                    className='text-xs text-lime-700 hover:underline'
-                  >
-                    Lihat Detail {isOpen ? '▲' : '▼'}
-                  </button>
                 </div>
               </div>
               <div>
                 {isOpen && (
-                  <div className='border-slate-200 border-2 rounded-b-lg -mt-6 px-16 py-8 mb-4'>
-                    <div className='flex text-sm text-lime-900 font-bold rounded-md py-3 px-4 items-center mr-6 ml-8'>
+                  <div className='border-slate-200 border-2 rounded-b-lg -mt-6 px-2 pt-8 pb-4 mb-4 '>
+                    <div className='flex text-sm text-gray-700 font-semibold rounded-md py-2 px-4 items-center mr-6 ml-8 mb-4'>
                       <div className='-mt-2'>
                         <span className=''>Nomor Booking </span>
                         <span className='px-2'>:</span>
@@ -912,15 +939,11 @@ const VoucherHotel = () => {
                     </div>
 
                     <div className='flex flex-col gap-2'>
-                      <div className='flex ml-9 mt-2 text-xs font-medium'>
-                        <div className='flex items-center gap-2 text-lime-900 py-2 px-3 rounded-md'>
-                          <BsPersonFillCheck className=' text-lime-900 text-lg -mb-2' />
-                          <span className='-mt-1'>{`${adults} Dewasa ${children} Anak`}</span>
-                        </div>
-                      </div>
                       <div className='flex gap-2'>
-                        <div className='ml-12 text-xs text-lime-900 font-medium'>
-                          <span className='font-bold'>Tipe &nbsp;:&nbsp; </span>
+                        <div className='ml-12 text-xs text-gray-700 font-medium'>
+                          <span className='font-semibold'>
+                            Tipe &nbsp;:&nbsp;{' '}
+                          </span>
                           <span>
                             {roomType
                               ? roomOptions.find(
@@ -929,11 +952,11 @@ const VoucherHotel = () => {
                               : 'Belum dipilih'}
                           </span>
                         </div>
-                        <span className='-ml-1 text-xs text-lime-900 font-medium'>
+                        <span className='-ml-1 text-xs text-gray-700 font-medium'>
                           dengan
                         </span>
 
-                        <div className='-ml-1 text-xs text-lime-900 font-medium'>
+                        <div className='-ml-1 text-xs text-gray-700 font-medium'>
                           <span>
                             {bedType
                               ? bedOptions.find((bed) => bed.code === bedType)
@@ -942,75 +965,81 @@ const VoucherHotel = () => {
                           </span>
                         </div>
                       </div>
+                      <div className='flex ml-9  text-xs font-medium'>
+                        <div className='flex items-center gap-2 text-gray-700 py-2 px-3 rounded-md'>
+                          <BsPersonFillCheck className=' text-lime-900 text-xl -mb-2' />
+                          <span className='-mt-1'>{`${adults} Dewasa ${children} Anak`}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <h3 className='ml-12 mb-5 text-lime-800 font-medium mt-8 text-xs'>
+                    <h3 className='ml-12 mb-5 text-gray-700 font-medium mt-8 text-xs'>
                       Fasilitas yang tersedia :
                     </h3>
 
-                    <div className='grid grid-flow-col grid-rows-2 gap-2 ml-20 font-medium'>
+                    <div className='grid grid-flow-col grid-rows-2 gap-2 ml-12 font-medium text-gray-700 '>
                       {wifi && (
-                        <div className='flex items-center text-lime-900 '>
-                          <PiWifiHighBold className='mr-2 text-base' />
+                        <div className='flex items-center  '>
+                          <PiWifiHighBold className='mr-2 text-base text-lime-900' />
                           <span className='text-xs -mt-4'>WiFi</span>
                         </div>
                       )}
 
                       {pool && (
-                        <div className='flex items-center text-lime-900'>
-                          <FaPersonSwimming className='mr-2 text-base' />
+                        <div className='flex items-center '>
+                          <FaPersonSwimming className='mr-2 text-base text-lime-900' />
                           <span className='text-xs -mt-4'>Kolam Renang</span>
                         </div>
                       )}
                       {resto && (
-                        <div className='flex items-center text-lime-900'>
-                          <PiChefHatBold className='mr-2 text-base' />
+                        <div className='flex items-center '>
+                          <PiChefHatBold className='mr-2 text-base text-lime-900' />
                           <span className='text-xs -mt-4'>Restoran/Cafe</span>
                         </div>
                       )}
 
                       {ac && (
-                        <div className='flex items-center text-lime-900'>
-                          <TbAirConditioning className='mr-2 text-lg' />
+                        <div className='flex items-center '>
+                          <TbAirConditioning className='mr-2 text-lg text-lime-900' />
                           <span className='text-xs -mt-4'>AC</span>
                         </div>
                       )}
 
                       {bathtub && (
-                        <div className='flex items-center text-lime-900'>
-                          <PiBathtubBold className='mr-2 text-lg' />
+                        <div className='flex items-center'>
+                          <PiBathtubBold className='mr-2 text-lg text-lime-900' />
                           <span className='text-xs -mt-4'>Bathtub</span>
                         </div>
                       )}
                       {tv && (
-                        <div className='flex items-center text-lime-900'>
-                          <FaTv className='mr-2 text-sm' />
-                          <span className='text-xs -mt-4'>Tv Layar</span>
+                        <div className='flex items-center'>
+                          <FaTv className='mr-2 text-sm text-lime-900' />
+                          <span className='text-xs -mt-4 ml-1'>Tv Layar</span>
                         </div>
                       )}
                       {rfid && (
-                        <div className='flex items-center text-lime-900'>
-                          <GiKeyCard className='mr-2 text-xl' />
+                        <div className='flex items-center '>
+                          <GiKeyCard className='mr-2 text-xl text-lime-900' />
                           <span className='text-xs -mt-4'>
                             Sistem Kartu Akses
                           </span>
                         </div>
                       )}
                       {housekeep && (
-                        <div className='flex items-center text-lime-900'>
-                          <TbHotelService className='mr-2 text-xl' />
+                        <div className='flex items-center '>
+                          <TbHotelService className='mr-2 text-xl text-lime-900' />
                           <span className='text-xs -mt-4'>Housekeeping</span>
                         </div>
                       )}
                       {laundry && (
-                        <div className='flex items-center text-lime-900'>
-                          <MdOutlineLocalLaundryService className='mr-2 text-xl' />
+                        <div className='flex items-center'>
+                          <MdOutlineLocalLaundryService className='mr-2 text-xl text-lime-900' />
                           <span className='text-xs -mt-4'>Laundry</span>
                         </div>
                       )}
                     </div>
 
-                    <hr className='my-10' />
+                    <hr className='my-8 mx-8' />
 
                     <div className='text-xs text-gray-700 ml-6'>
                       {' '}
@@ -1020,17 +1049,266 @@ const VoucherHotel = () => {
                 )}
               </div>
             </div>
-
-            <div className='mx-auto'>
-              <button
-                type='button'
-                className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-                onClick={handleVoucherHotel}
-              >
-                Unduh Tiket
-              </button>
-            </div>
           </div>
+
+          <button
+            type='button'
+            className='bg-white text-gray-700 border-2 px-4 py-2 rounded hover:bg-slate-200 ml-4'
+            onClick={handleVoucherHotel}
+          >
+            Preview Tiket
+          </button>
+          <button
+            onClick={() => setShowPopup(true)}
+            className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right mr-4'
+          >
+            Konfirmasi Tiket
+          </button>
+
+          {showPopup && (
+            <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50'>
+              <div className='w-full max-w-[1020px] mx-auto'>
+                <div className='bg-white rounded-lg pt-3 pb-2 max-w-[60vw] max-h-[100vh] overflow-hidden'>
+                  <div ref={popupRef} className='px-14 pt-6 pb-2'>
+                    <h2 className=' text font-semibold mb-2 -mt-6 text-center text-lime-600'>
+                      Konfirmasi Pemesanan Tiket
+                    </h2>
+                    <div className='border-slate-200 border-2 rounded-lg w-full px-6 py-4 mb-1'>
+                      <div className='space-y-2 text-xs text-gray-700'>
+                        <p>
+                          <span className='font-semibold'>
+                            Nama Penumpang
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{' '}
+                          </span>{' '}
+                          <span>{namaCustomer}</span>
+                        </p>
+                      </div>
+                      <div className='text-right text-xs text-gray-500 mt-2 '>
+                        Tanggal dibuat :{' '}
+                        {tglInput && format(new Date(tglInput), 'd MMM yyyy')}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className='bg-white border-2 border-gray-200 shadow-lg rounded-lg p-8 mb-6 mx-auto '>
+                        <div className='flex flex-col gap-2 mt-2 ml-5 mb-4'>
+                          <div className='text-lg font-semibold text-lime-800 ml-0.5'>
+                            {hotelName}
+                          </div>
+
+                          <div className='flex text-xs ml-1'>
+                            <span className='w-32 text-gray-500'>Alamat </span>
+                            <span className='pr-2'> : </span>
+                            <span className='text-gray-500 pl-2'>
+                              {hotelAddress}
+                            </span>
+                          </div>
+                        </div>
+
+                        <hr className='my-6' />
+                        <div className='flex items-center justify-between px-8 -ml-2'>
+                          <div className='flex justify-center gap-10'>
+                            <div>
+                              <div className='text-slate-600 text-sm font-medium'>
+                                {' '}
+                                {hotelDateDepature &&
+                                  format(
+                                    new Date(hotelDateDepature),
+                                    'd MMMM yyyy'
+                                  )}
+                              </div>
+                              <div className='text-xs text-slate-600'>
+                                {' '}
+                                {hotelTimeDepature}{' '}
+                              </div>
+                            </div>
+                            <div>
+                              <div className='flex items-center justify-between w-40 mt-2 mb-2'>
+                                <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+                                <div className='flex-grow border-lime-600 border-t-[0.5px]'></div>
+                                <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+                              </div>
+                              <div className='text-center text-xs text-slate-600'>
+                                {' '}
+                                {stayDuration}{' '}
+                              </div>
+                            </div>
+                            <div className='text-right'>
+                              <div className='text-slate-600 text-sm font-medium'>
+                                {hotelDateArrival &&
+                                  format(
+                                    new Date(hotelDateArrival),
+                                    'd MMMM yyyy'
+                                  )}{' '}
+                                {}{' '}
+                              </div>
+                              <div className='text-xs text-slate-600 '>
+                                {' '}
+                                {hotelTimeArrival}{' '}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className='text-right flex flex-col justify-between items-right align-middle gap-3 text-sm '>
+                            <div>
+                              <span className='text-orange-500 font-bold '>
+                                {formatCurrency(ticketPrice)}
+                              </span>{' '}
+                              /pax
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        {isOpen && (
+                          <div className='border-slate-200 border-2 rounded-b-lg -mt-6 px-2 pt-8 pb-4 '>
+                            <div className='flex text-sm text-gray-700 font-semibold rounded-md py-2 px-4 items-center mr-6 ml-8 mb-4'>
+                              <div className='-mt-2'>
+                                <span className=''>Nomor Booking </span>
+                                <span className='px-2'>:</span>
+                                <span className=''></span>
+                              </div>
+                            </div>
+
+                            <div className='flex flex-col gap-2'>
+                              <div className='flex gap-2'>
+                                <div className='ml-12 text-xs text-gray-700 font-medium'>
+                                  <span className='font-semibold'>
+                                    Tipe &nbsp;:&nbsp;{' '}
+                                  </span>
+                                  <span>
+                                    {roomType
+                                      ? roomOptions.find(
+                                          (room) => room.code === roomType
+                                        )?.name
+                                      : 'Belum dipilih'}
+                                  </span>
+                                </div>
+                                <span className='-ml-1 text-xs text-gray-700 font-medium'>
+                                  dengan
+                                </span>
+
+                                <div className='-ml-1 text-xs text-gray-700 font-medium'>
+                                  <span>
+                                    {bedType
+                                      ? bedOptions.find(
+                                          (bed) => bed.code === bedType
+                                        )?.name
+                                      : 'Belum dipilih'}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className='flex ml-9  text-xs font-medium'>
+                                <div className='flex items-center gap-2 text-gray-700 py-2 px-3 rounded-md'>
+                                  <BsPersonFillCheck className=' text-lime-900 text-xl -mb-2' />
+                                  <span className='-mt-1'>{`${adults} Dewasa ${children} Anak`}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <h3 className='ml-12 mb-5 text-gray-700 font-medium mt-8 text-xs'>
+                              Fasilitas yang tersedia :
+                            </h3>
+
+                            <div className='grid grid-flow-col grid-rows-2 gap-2 ml-12 font-medium text-gray-700 '>
+                              {wifi && (
+                                <div className='flex items-center  '>
+                                  <PiWifiHighBold className='mr-2 text-base text-lime-900' />
+                                  <span className='text-xs -mt-4'>WiFi</span>
+                                </div>
+                              )}
+
+                              {pool && (
+                                <div className='flex items-center '>
+                                  <FaPersonSwimming className='mr-2 text-base text-lime-900' />
+                                  <span className='text-xs -mt-4'>
+                                    Kolam Renang
+                                  </span>
+                                </div>
+                              )}
+                              {resto && (
+                                <div className='flex items-center '>
+                                  <PiChefHatBold className='mr-2 text-base text-lime-900' />
+                                  <span className='text-xs -mt-4'>
+                                    Restoran/Cafe
+                                  </span>
+                                </div>
+                              )}
+
+                              {ac && (
+                                <div className='flex items-center '>
+                                  <TbAirConditioning className='mr-2 text-lg text-lime-900' />
+                                  <span className='text-xs -mt-4'>AC</span>
+                                </div>
+                              )}
+
+                              {bathtub && (
+                                <div className='flex items-center'>
+                                  <PiBathtubBold className='mr-2 text-lg text-lime-900' />
+                                  <span className='text-xs -mt-4'>Bathtub</span>
+                                </div>
+                              )}
+                              {tv && (
+                                <div className='flex items-center'>
+                                  <FaTv className='mr-2 text-sm text-lime-900' />
+                                  <span className='text-xs -mt-4 ml-1'>
+                                    Tv Layar
+                                  </span>
+                                </div>
+                              )}
+                              {rfid && (
+                                <div className='flex items-center '>
+                                  <GiKeyCard className='mr-2 text-xl text-lime-900' />
+                                  <span className='text-xs -mt-4'>
+                                    Sistem Kartu Akses
+                                  </span>
+                                </div>
+                              )}
+                              {housekeep && (
+                                <div className='flex items-center '>
+                                  <TbHotelService className='mr-2 text-xl text-lime-900' />
+                                  <span className='text-xs -mt-4'>
+                                    Housekeeping
+                                  </span>
+                                </div>
+                              )}
+                              {laundry && (
+                                <div className='flex items-center'>
+                                  <MdOutlineLocalLaundryService className='mr-2 text-xl text-lime-900' />
+                                  <span className='text-xs -mt-4'>Laundry</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <hr className='my-8 mx-8' />
+
+                            <div className='text-xs text-gray-700 ml-6'>
+                              {' '}
+                              {descHotel}{' '}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className='my-2 mr-14 flex justify-end space-x-2'>
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className='px-4 py-2 rounded border text-xs text-gray-700 hover:bg-gray-200'
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={handleDownloadPopup}
+                      className='px-4 py-2 text-xs font-medium bg-lime-700 text-white rounded-lg hover:bg-lime-900'
+                    >
+                      Unduh Tiket
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

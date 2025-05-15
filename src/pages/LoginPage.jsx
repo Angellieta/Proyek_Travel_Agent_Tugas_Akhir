@@ -34,7 +34,11 @@ const LoginPage = () => {
     }
 
     if (valid) {
-      navigate('/homepage');
+      navigate('/homepage', {
+        state: {
+          username,
+        },
+      });
     }
   };
 

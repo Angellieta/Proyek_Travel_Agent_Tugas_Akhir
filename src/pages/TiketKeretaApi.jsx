@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { format } from 'date-fns';
 
@@ -8,6 +9,26 @@ import html2canvas from 'html2canvas';
 
 const TiketKeretaApi = () => {
   const tiketRef = useRef();
+
+  const location = useLocation();
+  const { namaCustomer, tglInput } = location.state;
+
+  const [showPopup, setShowPopup] = useState(false);
+
+  const popupRef = useRef();
+
+  const handleDownloadPopup = async () => {
+    if (popupRef.current) {
+      const canvas = await html2canvas(popupRef.current);
+      const dataURL = canvas.toDataURL('image/png');
+
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
+      link.click();
+    }
+  };
+
   const [codeTrain, setCodeTrain] = useState('');
   const [trainName, setTrainName] = useState('');
 
@@ -110,7 +131,7 @@ const TiketKeretaApi = () => {
     const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
-    link.download = `Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
+    link.download = `Preview-Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
     link.click();
   };
 
@@ -345,6 +366,7 @@ const TiketKeretaApi = () => {
                   type='date'
                   id='floating_outlined'
                   value={trainDateArrival}
+                  min={trainDateDepature}
                   onChange={(e) => setTrainDateArrival(e.target.value)}
                   className='block px-2.5 pb-2.5 pt-6 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                   placeholder=' '
@@ -580,28 +602,28 @@ const TiketKeretaApi = () => {
 
           <div className='container mx-auto p-6'>
             <div className='mt-8'>
-              <h3 className='text-lg font-semibold text-lime-600 '>
+              <h3 className='text-lg font-semibold text-lime-600 mb-8 '>
                 Rincian Tiket Kereta Api
               </h3>
-              <div className='bg-white shadow-lg rounded-lg p-8 mb-6 mx-auto'>
-                <div
-                  ref={tiketRef}
-                  className='flex flex-col gap-2 ml-6 mr-4 p-6'
-                >
-                  <div className='flex items-center text-xl font-semibold text-gray-700 m-1'>
+              <div
+                ref={tiketRef}
+                className='bg-white shadow-lg border-2 border-gray-200 rounded-lg px-8 pb-8 pt-4 mb-6 mx-auto'
+              >
+                <div className='flex flex-col gap-2'>
+                  <div className='flex items-center font-semibold text-gray-700 ml-1'>
                     <div>
                       {trainName} {'('} {codeTrain} {')'}
                     </div>
 
-                    <div className='ml-6 mt-6 text-base bg-lime-700 px-4 py-2 rounded-md'>
-                      <div className='text-base text-white -mt-4'>
+                    <div className='ml-6 mt-6 text-sm bg-lime-700 px-4 py-2 rounded-md'>
+                      <div className='text-sm text-white -mt-4'>
                         {selectedTrainClass}
                       </div>
                     </div>
                   </div>
 
-                  <div className='flex justify-between items-center mt-2 m-1 border-b-2 border-gray-300 border-dashed py-2'>
-                    <div className='text-right text-gray-700 text-sm mt-6 '>
+                  <div className='flex justify-between items-center mt-2 m-1  py-2'>
+                    <div className='text-right text-gray-700 text-xs '>
                       {' '}
                       <span className='font-semibold'>
                         Nomor Booking &nbsp; : &nbsp;
@@ -609,9 +631,11 @@ const TiketKeretaApi = () => {
                     </div>
                   </div>
 
-                  <div className='flex justify-between items-center gap-5 m-1'>
-                    <div className='flex flex-col mt-2'>
-                      <div className='font-semibold text-lime-800 '>
+                  <hr className='border-1 border-gray-300 border-dashed' />
+
+                  <div className='flex justify-between items-center m-1'>
+                    <div className='flex flex-col mt-2 gap-1'>
+                      <div className='font-medium text-gray-700 text-sm '>
                         {stationSelectedDepature
                           ? data.station.find(
                               (station) =>
@@ -627,7 +651,7 @@ const TiketKeretaApi = () => {
                           : ''}
                         {' )'}
                       </div>
-                      <div className='text-sm text-gray-600'>
+                      <div className='text-xs text-gray-600'>
                         {stationSelectedDepature
                           ? data.station.find(
                               (station) =>
@@ -635,7 +659,7 @@ const TiketKeretaApi = () => {
                             )?.city
                           : ''}
                       </div>
-                      <div className='font-medium text-gray-900 text-sm'>
+                      <div className='font-medium text-gray-800 text-xs'>
                         {trainDateDepature &&
                           format(new Date(trainDateDepature), 'd MMMM yyyy')}
                         {''}
@@ -655,8 +679,8 @@ const TiketKeretaApi = () => {
                         {trainHours} Jam {trainMinutes} Menit{' '}
                       </div>
                     </div>
-                    <div className='flex flex-col text-right mt-6'>
-                      <div className='font-semibold text-lime-800'>
+                    <div className='flex flex-col mt-2 gap-1 text-right'>
+                      <div className='font-medium text-gray-700 text-sm'>
                         {stationSelectedArrival
                           ? data.station.find(
                               (station) =>
@@ -672,7 +696,7 @@ const TiketKeretaApi = () => {
                           : ''}
                         {' )'}
                       </div>
-                      <div className='text-sm text-gray-600'>
+                      <div className='text-xs text-gray-600'>
                         {stationSelectedArrival
                           ? data.station.find(
                               (station) =>
@@ -680,7 +704,7 @@ const TiketKeretaApi = () => {
                             )?.city
                           : ''}
                       </div>
-                      <div className='text-right font-medium text-gray-900 text-sm'>
+                      <div className='text-right font-medium text-gray-800 text-xs'>
                         {trainDateArrival &&
                           format(new Date(trainDateArrival), 'd MMMM yyyy')}
                         {''}
@@ -691,9 +715,9 @@ const TiketKeretaApi = () => {
                   </div>
 
                   <div className='flex justify-between items-center mt-2 m-1'>
-                    <div className='text-right text-gray-700 text-sm mt-2 '>
+                    <div className='text-right text-gray-700 text-xs mt-2 '>
                       {' '}
-                      <span className='font-semibold'>
+                      <span className='font-medium '>
                         Nomor Kursi &nbsp; : &nbsp;
                       </span>{' '}
                       {trainDesc}
@@ -701,21 +725,207 @@ const TiketKeretaApi = () => {
                   </div>
 
                   <div className='text-right text-base mr-1 -mt-6'>
-                    <span className='text-base text-orange-500 font-bold '>
+                    <span className='text-sm text-orange-500 font-bold '>
                       {formatCurrency(ticketPrice)}
                     </span>{' '}
                     /pax
                   </div>
                 </div>
               </div>
-            </div>
-            <div className='mx-auto'>
               <button
-                className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
+                type='button'
+                className='bg-white text-gray-700 border-2 px-4 py-2 rounded hover:bg-slate-200'
                 onClick={handleTiketKereta}
               >
-                Unduh Tiket
+                Preview Tiket
               </button>
+              <button
+                onClick={() => setShowPopup(true)}
+                className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right'
+              >
+                Konfirmasi Tiket
+              </button>
+
+              {showPopup && (
+                <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50'>
+                  <div className='w-full max-w-[1020px] mx-auto'>
+                    <div className='bg-white rounded-lg py-6 max-w-[60vw] max-h-[100vh] overflow-hidden'>
+                      <div ref={popupRef} className='px-14 pt-6 pb-2'>
+                        <h2 className=' text font-semibold mb-2 -mt-6 text-center text-lime-600'>
+                          Konfirmasi Pemesanan Tiket
+                        </h2>
+                        <div className='border-slate-200 border-2 rounded-lg w-full px-6 py-4 mb-1'>
+                          <div className='space-y-2 text-xs text-gray-700'>
+                            <p>
+                              <span className='font-semibold'>
+                                Nama Penumpang
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{' '}
+                              </span>{' '}
+                              <span>{namaCustomer}</span>
+                            </p>
+                          </div>
+                          <div className='text-right text-xs text-gray-500 mt-2 '>
+                            Tanggal dibuat :{' '}
+                            {tglInput &&
+                              format(new Date(tglInput), 'd MMM yyyy')}
+                          </div>
+                        </div>
+
+                        <div className='bg-white shadow-lg border-2 border-gray-200 rounded-lg px-8 pb-8 pt-4  mx-auto'>
+                          <div className='flex flex-col gap-2'>
+                            <div className='flex items-center font-semibold text-gray-700 ml-1'>
+                              <div>
+                                {trainName} {'('} {codeTrain} {')'}
+                              </div>
+
+                              <div className='ml-6 mt-6 text-sm bg-lime-700 px-4 py-2 rounded-md'>
+                                <div className='text-sm text-white -mt-4'>
+                                  {selectedTrainClass}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className='flex justify-between items-center mt-2 m-1  py-2'>
+                              <div className='text-right text-gray-700 text-xs '>
+                                {' '}
+                                <span className='font-semibold'>
+                                  Nomor Booking &nbsp; : &nbsp;
+                                </span>{' '}
+                              </div>
+                            </div>
+
+                            <hr className='border-1 border-gray-300 border-dashed' />
+
+                            <div className='flex justify-between items-center m-1'>
+                              <div className='flex flex-col mt-2 gap-1'>
+                                <div className='font-medium text-gray-700 text-sm '>
+                                  {stationSelectedDepature
+                                    ? data.station.find(
+                                        (station) =>
+                                          station.code ===
+                                          stationSelectedDepature
+                                      )?.name
+                                    : ''}
+                                  {' ( '}
+                                  {stationSelectedDepature
+                                    ? data.station.find(
+                                        (station) =>
+                                          station.code ===
+                                          stationSelectedDepature
+                                      )?.code
+                                    : ''}
+                                  {' )'}
+                                </div>
+                                <div className='text-xs text-gray-600'>
+                                  {stationSelectedDepature
+                                    ? data.station.find(
+                                        (station) =>
+                                          station.code ===
+                                          stationSelectedDepature
+                                      )?.city
+                                    : ''}
+                                </div>
+                                <div className='font-medium text-gray-800 text-xs'>
+                                  {trainDateDepature &&
+                                    format(
+                                      new Date(trainDateDepature),
+                                      'd MMMM yyyy'
+                                    )}
+                                  {''}
+                                  {', '}
+                                  {trainTimeDepature}
+                                </div>
+                              </div>
+                              <div>
+                                <div className='flex items-center justify-between w-60 h-8'>
+                                  <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+                                  <div className='flex-grow border-lime-600 border-t-[0.5px]'></div>
+                                  <div className='h-1.5 w-1.5 bg-lime-600 rounded-full'></div>
+                                </div>
+                                <div></div>
+                                <div className='text-center text-xs text-slate-600'>
+                                  {' '}
+                                  {trainHours} Jam {trainMinutes} Menit{' '}
+                                </div>
+                              </div>
+                              <div className='flex flex-col mt-2 gap-1 text-right'>
+                                <div className='font-medium text-gray-700 text-sm'>
+                                  {stationSelectedArrival
+                                    ? data.station.find(
+                                        (station) =>
+                                          station.code ===
+                                          stationSelectedArrival
+                                      )?.name
+                                    : ''}
+                                  {' ( '}
+                                  {stationSelectedArrival
+                                    ? data.station.find(
+                                        (station) =>
+                                          station.code ===
+                                          stationSelectedArrival
+                                      )?.code
+                                    : ''}
+                                  {' )'}
+                                </div>
+                                <div className='text-xs text-gray-600'>
+                                  {stationSelectedArrival
+                                    ? data.station.find(
+                                        (station) =>
+                                          station.code ===
+                                          stationSelectedArrival
+                                      )?.city
+                                    : ''}
+                                </div>
+                                <div className='text-right font-medium text-gray-800 text-xs'>
+                                  {trainDateArrival &&
+                                    format(
+                                      new Date(trainDateArrival),
+                                      'd MMMM yyyy'
+                                    )}
+                                  {''}
+                                  {', '}
+                                  {trainTimeArrival}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className='flex justify-between items-center mt-2 m-1'>
+                              <div className='text-right text-gray-700 text-xs mt-2 '>
+                                {' '}
+                                <span className='font-medium '>
+                                  Nomor Kursi &nbsp; : &nbsp;
+                                </span>{' '}
+                                {trainDesc}
+                              </div>
+                            </div>
+
+                            <div className='text-right text-base mr-1 -mt-6'>
+                              <span className='text-sm text-orange-500 font-bold '>
+                                {formatCurrency(ticketPrice)}
+                              </span>{' '}
+                              /pax
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className='my-2 mr-14 flex justify-end space-x-2'>
+                        <button
+                          onClick={() => setShowPopup(false)}
+                          className='px-4 py-2 rounded border text-xs text-gray-700 hover:bg-gray-200'
+                        >
+                          Batal
+                        </button>
+                        <button
+                          onClick={handleDownloadPopup}
+                          className='px-4 py-2 text-xs font-medium bg-lime-700 text-white rounded-lg hover:bg-lime-900'
+                        >
+                          Unduh Tiket
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

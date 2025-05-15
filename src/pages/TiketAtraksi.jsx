@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { format } from 'date-fns';
 
@@ -6,6 +7,26 @@ import html2canvas from 'html2canvas';
 
 const TiketAtraksi = () => {
   const tiketAtraksiRef = useRef(null);
+
+  const location = useLocation();
+  const { namaCustomer, tglInput } = location.state;
+
+  const [showPopup, setShowPopup] = useState(false);
+
+  const popupRef = useRef();
+
+  const handleDownloadPopup = async () => {
+    if (popupRef.current) {
+      const canvas = await html2canvas(popupRef.current);
+      const dataURL = canvas.toDataURL('image/png');
+
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `Tiket-Atraksi-${attractionName}-${dateStart}.png`;
+      link.click();
+    }
+  };
+
   const [attractionName, setAttractionName] = useState('');
   const [dateStart, setDateStart] = useState('');
   const [timeOpen, setTimeOpen] = useState('');
@@ -65,8 +86,8 @@ const TiketAtraksi = () => {
     if (!attractionDesc.trim()) {
       newErrors.attractionDesc = 'Deskripsi atraksi wajib diisi';
       if (!firstInvalidRef) firstInvalidRef = attractionDescRef;
-    } else if (attractionDesc.trim().split(/\s+/).length > 100) {
-      newErrors.attractionDesc = 'Deskripsi atraksi maksimal 100 kata';
+    } else if (attractionDesc.trim().split(/\s+/).length > 65) {
+      newErrors.attractionDesc = 'Deskripsi atraksi maksimal 65 kata';
       if (!firstInvalidRef) firstInvalidRef = attractionDescRef;
     }
     if (selectedFileNames.length === 0) {
@@ -92,7 +113,7 @@ const TiketAtraksi = () => {
     const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
-    link.download = `Tiket-Atraksi-${attractionName}-${dateStart}.png`;
+    link.download = `Preview-Tiket-Atraksi-${attractionName}-${dateStart}.png`;
     link.click();
   };
 
@@ -422,49 +443,56 @@ const TiketAtraksi = () => {
               <h3 className='text-lg font-semibold text-lime-600 mb-4'>
                 Rincian Tiket Atraksi
               </h3>
-              <div className='bg-white rounded-lg  mb-4 mx-auto'>
+              <div className='bg-white rounded-lg mb-4 mx-auto'>
                 <div ref={tiketAtraksiRef}>
-                  <div className='bg-white shadow-lg rounded-lg p-8 mb-8'>
+                  <div className='bg-white shadow-lg rounded-lg px-8 pt-8 pb-4 mb-8'>
                     <div className='text-xl font-medium text-gray-800 mb-2 ml-4'>
                       {attractionName}
                     </div>
                     <div className='text-xs text-justify font-medium text-gray-700 ml-4 mr-5 mb-4'>
-                      <span className='text-xs font-bold text-gray-800'>
+                      <span className='text-xs font-semibold text-gray-800'>
                         {' '}
-                        Alamat :{' '}
+                        Alamat
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :{' '}
                       </span>
                       {attractionAddress}
                     </div>
 
                     <hr className='w-2xs' />
-                    <div className='mt-4 text-xs text-justify font-medium text-gray-700 ml-4 mr-5'>
-                      <span className='text-xs font-bold text-gray-800'>
-                        Tanggal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      </span>{' '}
-                      :{' '}
-                      {dateStart && format(new Date(dateStart), 'd MMMM yyyy')}
-                    </div>
-                    <div className='text-xs text-justify font-medium text-gray-700 ml-4 mb-6'>
-                      <span className='text-xs font-bold text-gray-800'>
-                        Jam Buka &nbsp;&nbsp;&nbsp;
-                      </span>
-                      : {timeOpen} - {timeClose}
-                    </div>
+                    <div className='flex flex-row justify-between items-center '>
+                      <div>
+                        <div className='mt-4 text-xs text-justify font-medium text-gray-700 ml-4 mr-5'>
+                          <span className='text-xs font-semibold text-gray-800'>
+                            Tanggal{' '}
+                          </span>{' '}
+                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:{' '}
+                          {dateStart &&
+                            format(new Date(dateStart), 'd MMMM yyyy')}
+                        </div>
+                        <div className='text-xs text-justify font-medium text-gray-700 ml-4 mb-6'>
+                          <span className='text-xs font-semibold text-gray-800'>
+                            Jam Buka{' '}
+                          </span>
+                          &nbsp;&nbsp;&nbsp;&nbsp;: {timeOpen} - {timeClose}
+                        </div>
+                      </div>
 
-                    <div className='text-right text-sm mr-6 mb-2 -mt-6'>
-                      <span className='text-orange-500 font-bold '>
-                        {formatCurrency(ticketPrice)}
-                      </span>{' '}
-                      /pax
-                    </div>
-
-                    <div className='flex justify-end mr-5'>
-                      <button
-                        onClick={handleToggleDropdown}
-                        className='text-xs text-lime-700 hover:underline'
-                      >
-                        Lihat Detail {isOpen ? '▲' : '▼'}
-                      </button>
+                      <div className='flex flex-col items-right'>
+                        <div className='text-right text-sm mr-6 mb-2'>
+                          <span className='text-orange-500 font-bold '>
+                            {formatCurrency(ticketPrice)}
+                          </span>{' '}
+                          /pax
+                        </div>
+                        <div className='flex justify-end mr-5'>
+                          <button
+                            onClick={handleToggleDropdown}
+                            className='text-xs text-lime-700 hover:underline'
+                          >
+                            Lihat Detail {isOpen ? '▲' : '▼'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -491,7 +519,7 @@ const TiketAtraksi = () => {
                           </div>
                           <table className='text-gray-700 mb-3'>
                             <tr>
-                              <td className='text-xs font-bold'>
+                              <td className='text-xs font-semibold'>
                                 Nomor Booking{' '}
                               </td>
                               <td className='text-xs text-center'>
@@ -504,7 +532,7 @@ const TiketAtraksi = () => {
                             {attractionDesc}
                             <div className='mt-4'>
                               {' '}
-                              <span className='text-xs font-bold '>
+                              <span className='text-xs font-semibold '>
                                 Alamat :{' '}
                               </span>
                               {attractionAddress}
@@ -515,7 +543,9 @@ const TiketAtraksi = () => {
 
                           <table className='ml-0.5 text-left text-gray-700 mb-6 '>
                             <tr>
-                              <td className='text-xs font-bold'>Tanggal </td>
+                              <td className='text-xs font-semibold'>
+                                Tanggal{' '}
+                              </td>
                               <td className='text-xs text-center'>
                                 &nbsp; &nbsp;:&nbsp;&nbsp;
                               </td>
@@ -525,7 +555,7 @@ const TiketAtraksi = () => {
                               </td>
                             </tr>
                             <tr>
-                              <td className='text-xs font-bold'>Jam </td>
+                              <td className='text-xs font-semibold'>Jam </td>
                               <td className='text-xs text-center'>
                                 &nbsp; &nbsp;:&nbsp;&nbsp;
                               </td>
@@ -534,27 +564,202 @@ const TiketAtraksi = () => {
                               </td>
                             </tr>
                           </table>
-
-                          <div className='text-right text-sm'>
-                            <span className='text-sm text-orange-500 font-bold '>
-                              {formatCurrency(ticketPrice)}
-                            </span>{' '}
-                            /pax
-                          </div>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-              <div className='mx-auto'>
-                <button
-                  className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right ml-4'
-                  onClick={handleTiketAtraksi}
-                >
-                  Unduh Tiket
-                </button>
-              </div>
+
+              <button
+                type='button'
+                className='bg-white text-gray-700 border-2 px-4 py-2 rounded hover:bg-slate-200'
+                onClick={handleTiketAtraksi}
+              >
+                Preview Tiket
+              </button>
+              <button
+                onClick={() => setShowPopup(true)}
+                className='bg-lime-700 hover:bg-lime-800 text-white font-medium py-2 px-4 rounded-lg float-right'
+              >
+                Konfirmasi Tiket
+              </button>
+
+              {showPopup && (
+                <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50'>
+                  <div className='w-full max-w-[1020px] mx-auto'>
+                    <div className='bg-white rounded-lg pt-3 pb-2 max-w-[60vw] max-h-[100vh] overflow-hidden'>
+                      <div ref={popupRef} className='px-14 pt-6 pb-2'>
+                        <h2 className=' text font-semibold mb-2 -mt-6 text-center text-lime-600'>
+                          Konfirmasi Pemesanan Tiket
+                        </h2>
+                        <div className='border-slate-200 border-2 rounded-lg w-full px-6 py-4 mb-1'>
+                          <div className='space-y-2 text-xs text-gray-700'>
+                            <p>
+                              <span className='font-semibold'>
+                                Nama Penumpang
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{' '}
+                              </span>{' '}
+                              <span>{namaCustomer}</span>
+                            </p>
+                          </div>
+                          <div className='text-right text-xs text-gray-500 mt-2 '>
+                            Tanggal dibuat :{' '}
+                            {tglInput &&
+                              format(new Date(tglInput), 'd MMM yyyy')}
+                          </div>
+                        </div>
+                        <div>
+                          <div className='bg-white shadow-lg border-2 border-gray-200 rounded-lg px-8 pt-8 pb-4 mb-8'>
+                            <div className='text-lg font-medium text-gray-800 mb-2 ml-4'>
+                              {attractionName}
+                            </div>
+                            <div className='text-xs text-justify font-medium text-gray-700 ml-4 mr-5 mb-4'>
+                              <span className='text-xs font-semibold text-gray-800'>
+                                {' '}
+                                Alamat
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                :{' '}
+                              </span>
+                              {attractionAddress}
+                            </div>
+
+                            <hr className='w-2xs' />
+                            <div className='flex flex-row justify-between items-center '>
+                              <div>
+                                <div className='mt-4 text-xs text-justify font-medium text-gray-700 ml-4 mr-5'>
+                                  <span className='text-xs font-semibold text-gray-800'>
+                                    Tanggal{' '}
+                                  </span>{' '}
+                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:{' '}
+                                  {dateStart &&
+                                    format(new Date(dateStart), 'd MMMM yyyy')}
+                                </div>
+                                <div className='text-xs text-justify font-medium text-gray-700 ml-4 mb-6'>
+                                  <span className='text-xs font-semibold text-gray-800'>
+                                    Jam Buka{' '}
+                                  </span>
+                                  &nbsp;&nbsp;&nbsp;&nbsp;: {timeOpen} -{' '}
+                                  {timeClose}
+                                </div>
+                              </div>
+
+                              <div className='flex flex-col items-right'>
+                                <div className='text-right text-sm mr-6 mb-2'>
+                                  <span className='text-orange-500 font-bold '>
+                                    {formatCurrency(ticketPrice)}
+                                  </span>{' '}
+                                  /pax
+                                </div>
+                                <div className='flex justify-end mr-5'>
+                                  <button
+                                    onClick={handleToggleDropdown}
+                                    className='text-xs text-lime-700 hover:underline'
+                                  >
+                                    Lihat Detail {isOpen ? '▲' : '▼'}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            {isOpen && (
+                              <div className='flex flex-row gap-8 -mt-8 border-slate-200 border-2 rounded-b-lg px-12 pt-8 '>
+                                <div className='justify-center items-center w-1/3'>
+                                  {selectedImageURL.map((image, index) => (
+                                    <div
+                                      key={index}
+                                      className='w-full h-80 border rounded-lg overflow-hidden'
+                                    >
+                                      <img
+                                        src={image}
+                                        alt={`Preview ${index + 1}`}
+                                        className='w-full h-full object-cover'
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className='justify-center items-center w-2/3'>
+                                  <div className='text-lg font-medium text-gray-700 mb-2'>
+                                    {attractionName}
+                                  </div>
+                                  <table className='text-gray-700 mb-3'>
+                                    <tr>
+                                      <td className='text-xs font-semibold'>
+                                        Nomor Booking{' '}
+                                      </td>
+                                      <td className='text-xs text-center'>
+                                        &nbsp; &nbsp;:&nbsp;&nbsp;
+                                      </td>
+                                      <td className='text-xs ml-0.5 mb-3'></td>
+                                    </tr>
+                                  </table>
+                                  <div className='text-xs text-justify font-medium text-gray-700 ml-0.5 mb-4'>
+                                    {attractionDesc}
+                                    <div className='mt-4'>
+                                      {' '}
+                                      <span className='text-xs font-semibold '>
+                                        Alamat :{' '}
+                                      </span>
+                                      {attractionAddress}
+                                    </div>
+                                  </div>
+
+                                  <hr className='border-gray-400 border-dotted mb-4' />
+
+                                  <table className='ml-0.5 text-left text-gray-700 mb-6 '>
+                                    <tr>
+                                      <td className='text-xs font-semibold'>
+                                        Tanggal{' '}
+                                      </td>
+                                      <td className='text-xs text-center'>
+                                        &nbsp; &nbsp;:&nbsp;&nbsp;
+                                      </td>
+                                      <td className='text-xs ml-0.5 mb-3'>
+                                        {dateStart &&
+                                          format(
+                                            new Date(dateStart),
+                                            'd MMMM yyyy'
+                                          )}
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td className='text-xs font-semibold'>
+                                        Jam{' '}
+                                      </td>
+                                      <td className='text-xs text-center'>
+                                        &nbsp; &nbsp;:&nbsp;&nbsp;
+                                      </td>
+                                      <td className='text-xs ml-0.5 mb-3'>
+                                        {timeOpen} - {timeClose}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className='my-2 mr-14 flex justify-end space-x-2'>
+                        <button
+                          onClick={() => setShowPopup(false)}
+                          className='px-4 py-2 rounded border text-xs text-gray-700 hover:bg-gray-200'
+                        >
+                          Batal
+                        </button>
+                        <button
+                          onClick={handleDownloadPopup}
+                          className='px-4 py-2 text-xs font-medium bg-lime-700 text-white rounded-lg hover:bg-lime-900'
+                        >
+                          Unduh Tiket
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

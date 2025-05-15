@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import LogoImage from '../logo/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMemo } from 'react';
 
@@ -7,6 +6,7 @@ const Navbar = () => {
   const [scrolling, setScrolling] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const username = location.state || {};
 
   const backPages = useMemo(
     () => [
@@ -63,12 +63,9 @@ const Navbar = () => {
       <div className='container mx-auto px-4 '>
         <div className='navbar-box flex items-center justify-between z-999 mx-10'>
           <div className='logo'>
-            <img
-              src={LogoImage}
-              alt='Logo'
-              className='w-28'
-              onClick={() => navigate('/')}
-            />
+            <p className='font-bold text-xl text-lime-900 my-8 mx-2 '>
+              Travel Agent
+            </p>
           </div>
           <div className='relative flex flex-col items-center'>
             {backPages.includes(location.pathname) ? (
@@ -80,7 +77,7 @@ const Navbar = () => {
               </button>
             ) : (
               <button
-                onClick={() => navigate('/datacustomer')}
+                onClick={() => navigate('/datacustomer', { state: username })}
                 className='flex items-center px-7 py-3 rounded-lg font-medium text-sm hover:shadow-2xl text-white transform hover:translate-y-1 hover:bg-lime-900 hover:scale-105 transition-all duration-500 bg-lime-900  shadow-lg shadow-lime-900'
               >
                 Buat Tiket

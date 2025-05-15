@@ -45,7 +45,7 @@ const RegisterPage = () => {
 
   const handleRegister = () => {
     if (validate()) {
-      navigate('/login');
+      navigate('/');
     }
   };
 
