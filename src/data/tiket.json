@@ -155,6 +155,42 @@
       "name": "Saudia",
       "country": "Saudi Arabia",
       "logo": "/assets/img/logo/saudia.png"
+    },
+    {
+      "code": "TK",
+      "name": "Turkish Airlines",
+      "country": "Turkey",
+      "logo": "/assets/img/logo/turkish.png"
+    },
+    {
+      "code": "IU",
+      "name": "Super Air Jet",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/superairjet.png"
+    },
+    {
+      "code": "IN",
+      "name": "NAM Air",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/nam.png"
+    },
+    {
+      "code": "TR",
+      "name": "Scoot",
+      "country": "Singapore",
+      "logo": "/assets/img/logo/scoot.png"
+    },
+    {
+      "code": "IW",
+      "name": "Wings Air",
+      "country": "Indonesia",
+      "logo": "/assets/img/logo/wings.png"
+    },
+    {
+      "code": "AK",
+      "name": "Air Asia",
+      "country": "Malaysia",
+      "logo": "/assets/img/logo/airasia.png"
     }
   ],
   "airports": [

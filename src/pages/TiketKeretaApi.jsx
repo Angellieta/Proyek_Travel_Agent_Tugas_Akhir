@@ -11,21 +11,42 @@ const TiketKeretaApi = () => {
   const tiketRef = useRef();
 
   const location = useLocation();
-  const { namaCustomer, tglInput } = location.state;
+  const { namaCustomer, tglInput, noTelpCustomer } = location.state;
 
   const [showPopup, setShowPopup] = useState(false);
 
   const popupRef = useRef();
 
   const handleDownloadPopup = async () => {
-    if (popupRef.current) {
-      const canvas = await html2canvas(popupRef.current);
-      const dataURL = canvas.toDataURL('image/png');
+    if (!popupRef.current) return;
 
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
-      link.click();
+    const canvas = await html2canvas(popupRef.current);
+    const dataURL = canvas.toDataURL('image/png');
+
+    // Unduh file
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = `Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
+    link.click();
+
+    // Format nomor telepon
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        const message = encodeURIComponent(
+          `Halo ${namaCustomer}, berikut tiket pesawat Anda. Mohon untuk diperiksa dan konfirmasi, Terimakasih.`
+        );
+        window.open(
+          `https://wa.me/${sanitizedPhone}?text=${message}`,
+          '_blank'
+        );
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
     }
   };
 
@@ -129,10 +150,26 @@ const TiketKeretaApi = () => {
 
     const canvas = await html2canvas(tiketRef.current);
     const image = canvas.toDataURL('image/png');
+
+    // Unduh file
     const link = document.createElement('a');
     link.href = image;
     link.download = `Preview-Tiket-Kereta-${trainName}-${trainDateDepature}.png`;
     link.click();
+
+    // Format dan validasi nomor WhatsApp
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        window.open(`https://wa.me/${sanitizedPhone}`, '_blank');
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
+    }
   };
 
   const handleTiketKereta = () => {
@@ -725,7 +762,7 @@ const TiketKeretaApi = () => {
                   </div>
 
                   <div className='text-right text-base mr-1 -mt-6'>
-                    <span className='text-sm text-orange-500 font-bold '>
+                    <span className='text-sm text-lime-600 font-bold '>
                       {formatCurrency(ticketPrice)}
                     </span>{' '}
                     /pax
@@ -759,9 +796,22 @@ const TiketKeretaApi = () => {
                             <p>
                               <span className='font-semibold'>
                                 Nama Penumpang
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{' '}
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{' '}
                               </span>{' '}
                               <span>{namaCustomer}</span>
+                            </p>
+                            <p>
+                              <span className='font-semibold text-gray-700'>
+                                Tanggal Keberangkatan &nbsp;&nbsp;&nbsp;&nbsp;:
+                                &nbsp;&nbsp;{' '}
+                              </span>
+                              <span>
+                                {trainDateDepature &&
+                                  format(
+                                    new Date(trainDateDepature),
+                                    'd MMM yyyy'
+                                  )}{' '}
+                              </span>
                             </p>
                           </div>
                           <div className='text-right text-xs text-gray-500 mt-2 '>
@@ -900,7 +950,7 @@ const TiketKeretaApi = () => {
                             </div>
 
                             <div className='text-right text-base mr-1 -mt-6'>
-                              <span className='text-sm text-orange-500 font-bold '>
+                              <span className='text-sm text-lime-600 font-bold '>
                                 {formatCurrency(ticketPrice)}
                               </span>{' '}
                               /pax

@@ -7,6 +7,7 @@ const KategoriTiket = () => {
   const location = useLocation();
   const customerData = location.state || {};
   const username = location.state || {};
+  const noTelpCustomer = location.state || {};
 
   return (
     <div className='container px-6 py-12 mx-auto'>
@@ -32,7 +33,11 @@ const KategoriTiket = () => {
             <button
               className='bg-white font-semibold text-lime-900 p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:translate-y-1 hover:scale-105 transition-all duration-500 w-full h-40 flex flex-col items-center justify-center'
               onClick={() =>
-                navigate('/tiketpesawat', { state: customerData, username })
+                navigate('/tiketpesawat', {
+                  state: customerData,
+                  username,
+                  noTelpCustomer,
+                })
               }
             >
               <FaPlane className='w-12 h-12 mb-2' /> {/* Icon Pesawat */}
@@ -43,7 +48,11 @@ const KategoriTiket = () => {
             <button
               className='bg-white font-semibold text-lime-900 p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:translate-y-1 hover:scale-105 transition-all duration-500 w-full h-40 flex flex-col items-center justify-center'
               onClick={() =>
-                navigate('/voucherhotel', { state: customerData, username })
+                navigate('/voucherhotel', {
+                  state: customerData,
+                  username,
+                  noTelpCustomer,
+                })
               }
             >
               <FaHotel className='w-12 h-12 mb-2' /> {/* Icon Hotel */}
@@ -54,7 +63,11 @@ const KategoriTiket = () => {
             <button
               className='bg-white font-semibold text-lime-900 p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:translate-y-1 hover:scale-105 transition-all duration-500 w-full h-40 flex flex-col items-center justify-center'
               onClick={() =>
-                navigate('/tiketatraksi', { state: customerData, username })
+                navigate('/tiketatraksi', {
+                  state: customerData,
+                  username,
+                  noTelpCustomer,
+                })
               }
             >
               <FaTicketAlt className='w-12 h-12 mb-2' /> {/* Icon Atraksi */}
@@ -65,7 +78,11 @@ const KategoriTiket = () => {
             <button
               className='bg-white font-semibold text-lime-900 p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:translate-y-1 hover:scale-105 transition-all duration-500 w-full h-40 flex flex-col items-center justify-center'
               onClick={() =>
-                navigate('/tiketkeretaapi', { state: customerData, username })
+                navigate('/tiketkeretaapi', {
+                  state: customerData,
+                  username,
+                  noTelpCustomer,
+                })
               }
             >
               <FaTrain className='w-12 h-12 mb-2' /> {/* Icon Kereta Api */}

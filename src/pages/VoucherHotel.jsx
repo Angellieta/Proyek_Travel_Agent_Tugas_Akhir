@@ -35,19 +35,40 @@ const VoucherHotel = () => {
   const popupRef = useRef();
 
   const handleDownloadPopup = async () => {
-    if (popupRef.current) {
-      const canvas = await html2canvas(popupRef.current);
-      const dataURL = canvas.toDataURL('image/png');
+    if (!popupRef.current) return;
 
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
-      link.click();
+    const canvas = await html2canvas(popupRef.current);
+    const dataURL = canvas.toDataURL('image/png');
+
+    // Unduh file
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = `Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
+    link.click();
+
+    // Format nomor telepon
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        const message = encodeURIComponent(
+          `Halo ${namaCustomer}, berikut voucher hotel Anda. Mohon untuk diperiksa dan konfirmasi, Terimakasih.`
+        );
+        window.open(
+          `https://wa.me/${sanitizedPhone}?text=${message}`,
+          '_blank'
+        );
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
     }
   };
 
   const location = useLocation();
-  const { namaCustomer, tglInput } = location.state;
+  const { namaCustomer, tglInput, noTelpCustomer } = location.state;
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -189,10 +210,26 @@ const VoucherHotel = () => {
 
     const canvas = await html2canvas(voucherHotelRef.current);
     const image = canvas.toDataURL('image/png');
+
+    // Unduh file
     const link = document.createElement('a');
     link.href = image;
     link.download = `Preview-Voucher-Hotel-${hotelName}-${hotelDateDepature}.png`;
     link.click();
+
+    // Format dan validasi nomor WhatsApp
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        window.open(`https://wa.me/${sanitizedPhone}`, '_blank');
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
+    }
   };
 
   const handleVoucherHotel = () => {
@@ -855,7 +892,7 @@ const VoucherHotel = () => {
           <div className='mt-8 mx-4 ' ref={voucherHotelRef}>
             <div>
               <div className='bg-white shadow-lg rounded-lg p-8 mb-6 mx-auto '>
-                <div className='flex flex-col gap-2 mt-6 ml-5 mb-4'>
+                <div className='flex flex-col gap-2 ml-5 mb-4'>
                   <div className='text-lg font-semibold text-lime-800 ml-0.5'>
                     {hotelName}
                   </div>
@@ -910,7 +947,7 @@ const VoucherHotel = () => {
 
                   <div className='text-right flex flex-col justify-between items-right align-middle gap-3 text-sm '>
                     <div>
-                      <span className='text-orange-500 font-bold '>
+                      <span className='text-lime-600 font-bold '>
                         {formatCurrency(ticketPrice)}
                       </span>{' '}
                       /pax
@@ -1082,6 +1119,23 @@ const VoucherHotel = () => {
                           </span>{' '}
                           <span>{namaCustomer}</span>
                         </p>
+                        <p>
+                          <span className='font-semibold text-gray-700'>
+                            Tanggal Check-In
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                            &nbsp;&nbsp;{' '}
+                          </span>
+                          <span>
+                            {hotelDateDepature &&
+                              format(
+                                new Date(hotelDateDepature),
+                                'd MMM yyyy'
+                              )}{' '}
+                            -{' '}
+                            {hotelDateArrival &&
+                              format(new Date(hotelDateArrival), 'd MMM yyyy')}
+                          </span>
+                        </p>
                       </div>
                       <div className='text-right text-xs text-gray-500 mt-2 '>
                         Tanggal dibuat :{' '}
@@ -1151,7 +1205,7 @@ const VoucherHotel = () => {
 
                           <div className='text-right flex flex-col justify-between items-right align-middle gap-3 text-sm '>
                             <div>
-                              <span className='text-orange-500 font-bold '>
+                              <span className='text-lime-600 font-bold '>
                                 {formatCurrency(ticketPrice)}
                               </span>{' '}
                               /pax
@@ -1161,7 +1215,7 @@ const VoucherHotel = () => {
                       </div>
                       <div>
                         {isOpen && (
-                          <div className='border-slate-200 border-2 rounded-b-lg -mt-6 px-2 pt-8 pb-4 '>
+                          <div className='border-slate-200 border-2 rounded-b-lg -mt-6 px-2 pt-5 pb-4 '>
                             <div className='flex text-sm text-gray-700 font-semibold rounded-md py-2 px-4 items-center mr-6 ml-8 mb-4'>
                               <div className='-mt-2'>
                                 <span className=''>Nomor Booking </span>
@@ -1291,7 +1345,7 @@ const VoucherHotel = () => {
                       </div>
                     </div>
                   </div>
-                  <div className='my-2 mr-14 flex justify-end space-x-2'>
+                  <div className='my-1 mr-14 flex justify-end space-x-2'>
                     <button
                       onClick={() => setShowPopup(false)}
                       className='px-4 py-2 rounded border text-xs text-gray-700 hover:bg-gray-200'

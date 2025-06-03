@@ -12,7 +12,7 @@ const Navbar = () => {
     () => [
       '/kategoritiket',
       '/tiketpesawat',
-      '/tikethotel',
+      '/voucherhotel',
       '/tiketatraksi',
       '/tiketkeretaapi',
     ],

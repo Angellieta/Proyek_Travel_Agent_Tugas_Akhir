@@ -16,19 +16,40 @@ const TiketPesawat = () => {
   const popupRef = useRef();
 
   const handleDownloadPopup = async () => {
-    if (popupRef.current) {
-      const canvas = await html2canvas(popupRef.current);
-      const dataURL = canvas.toDataURL('image/png');
+    if (!popupRef.current) return;
 
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `Tiket-Pesawat-${selectedAirline}-${departureDate}.png`;
-      link.click();
+    const canvas = await html2canvas(popupRef.current);
+    const dataURL = canvas.toDataURL('image/png');
+
+    // Unduh file
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = `Tiket-Pesawat-${selectedAirline}-${departureDate}.png`;
+    link.click();
+
+    // Format nomor telepon
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        const message = encodeURIComponent(
+          `Halo ${namaCustomer}, berikut tiket pesawat Anda. Mohon untuk diperiksa dan konfirmasi, Terimakasih.`
+        );
+        window.open(
+          `https://wa.me/${sanitizedPhone}?text=${message}`,
+          '_blank'
+        );
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
     }
   };
 
   const location = useLocation();
-  const { namaCustomer, tglInput } = location.state;
+  const { namaCustomer, tglInput, noTelpCustomer } = location.state;
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -177,10 +198,26 @@ const TiketPesawat = () => {
 
     const canvas = await html2canvas(tiketPesawatRef.current);
     const image = canvas.toDataURL('image/png');
+
+    // Unduh file
     const link = document.createElement('a');
     link.href = image;
     link.download = `Preview-Tiket-Pesawat-${selectedAirline}-${departureDate}.png`;
     link.click();
+
+    // Format dan validasi nomor WhatsApp
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        window.open(`https://wa.me/${sanitizedPhone}`, '_blank');
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
+    }
   };
 
   const handleTiketPesawat = () => {
@@ -985,7 +1022,7 @@ const TiketPesawat = () => {
 
                       <div className='flex flex-col gap-3 w-full md:w-1/3'>
                         <div>
-                          <span className='text-orange-500 font-bold'>
+                          <span className='text-lime-600 font-bold'>
                             {formatCurrency(ticketPrice)}
                           </span>
                           <span className='text-slate-500'>/pax</span>
@@ -1002,7 +1039,7 @@ const TiketPesawat = () => {
                     </div>
                   </div>
                   {isOpen && (
-                    <div className='border-slate-200 border-2 rounded-b-lg w-full px-6 py-4'>
+                    <div className='border-slate-200 border-2 rounded-b-lg w-full px-12 pt-8 pb-4 '>
                       <h4 className='text-md font-semibold text-gray-700 mb-1 '>
                         Detail Penerbangan
                       </h4>
@@ -1381,7 +1418,7 @@ const TiketPesawat = () => {
 
                           <div className='flex flex-col gap-3 w-full md:w-1/3'>
                             <div className='mt-3'>
-                              <span className='text-orange-500 font-bold text-xs'>
+                              <span className='text-lime-600 font-bold text-xs'>
                                 {formatCurrency(ticketPrice)}
                               </span>
                               <span className='text-slate-500 text-xs'>

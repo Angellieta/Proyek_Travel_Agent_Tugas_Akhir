@@ -9,21 +9,42 @@ const TiketAtraksi = () => {
   const tiketAtraksiRef = useRef(null);
 
   const location = useLocation();
-  const { namaCustomer, tglInput } = location.state;
+  const { namaCustomer, tglInput, noTelpCustomer } = location.state;
 
   const [showPopup, setShowPopup] = useState(false);
 
   const popupRef = useRef();
 
   const handleDownloadPopup = async () => {
-    if (popupRef.current) {
-      const canvas = await html2canvas(popupRef.current);
-      const dataURL = canvas.toDataURL('image/png');
+    if (!popupRef.current) return;
 
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `Tiket-Atraksi-${attractionName}-${dateStart}.png`;
-      link.click();
+    const canvas = await html2canvas(popupRef.current);
+    const dataURL = canvas.toDataURL('image/png');
+
+    // Unduh file
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = `Tiket-Atraksi-${attractionName}-${dateStart}.png`;
+    link.click();
+
+    // Format nomor telepon
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        const message = encodeURIComponent(
+          `Halo ${namaCustomer}, berikut tiket pesawat Anda. Mohon untuk diperiksa dan konfirmasi, Terimakasih.`
+        );
+        window.open(
+          `https://wa.me/${sanitizedPhone}?text=${message}`,
+          '_blank'
+        );
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
     }
   };
 
@@ -111,10 +132,26 @@ const TiketAtraksi = () => {
 
     const canvas = await html2canvas(tiketAtraksiRef.current);
     const image = canvas.toDataURL('image/png');
+
+    // Unduh file
     const link = document.createElement('a');
     link.href = image;
     link.download = `Preview-Tiket-Atraksi-${attractionName}-${dateStart}.png`;
     link.click();
+
+    // Format dan validasi nomor WhatsApp
+    let sanitizedPhone = (noTelpCustomer || '').replace(/\D/g, '');
+    if (sanitizedPhone.startsWith('08')) {
+      sanitizedPhone = '62' + sanitizedPhone.slice(1);
+    }
+
+    if (/^62\d{8,13}$/.test(sanitizedPhone)) {
+      setTimeout(() => {
+        window.open(`https://wa.me/${sanitizedPhone}`, '_blank');
+      }, 500);
+    } else {
+      alert('Nomor WhatsApp tidak valid atau belum tersedia.');
+    }
   };
 
   const handleTiketAtraksi = () => {
@@ -479,7 +516,7 @@ const TiketAtraksi = () => {
 
                       <div className='flex flex-col items-right'>
                         <div className='text-right text-sm mr-6 mb-2'>
-                          <span className='text-orange-500 font-bold '>
+                          <span className='text-lime-600 font-bold '>
                             {formatCurrency(ticketPrice)}
                           </span>{' '}
                           /pax
@@ -597,7 +634,7 @@ const TiketAtraksi = () => {
                           <div className='space-y-2 text-xs text-gray-700'>
                             <p>
                               <span className='font-semibold'>
-                                Nama Penumpang
+                                Nama Pengunjung
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{' '}
                               </span>{' '}
                               <span>{namaCustomer}</span>
@@ -646,18 +683,10 @@ const TiketAtraksi = () => {
 
                               <div className='flex flex-col items-right'>
                                 <div className='text-right text-sm mr-6 mb-2'>
-                                  <span className='text-orange-500 font-bold '>
+                                  <span className='text-lime-600 font-bold '>
                                     {formatCurrency(ticketPrice)}
                                   </span>{' '}
                                   /pax
-                                </div>
-                                <div className='flex justify-end mr-5'>
-                                  <button
-                                    onClick={handleToggleDropdown}
-                                    className='text-xs text-lime-700 hover:underline'
-                                  >
-                                    Lihat Detail {isOpen ? '▲' : '▼'}
-                                  </button>
                                 </div>
                               </div>
                             </div>

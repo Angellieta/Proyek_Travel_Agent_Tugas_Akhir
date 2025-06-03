@@ -50,6 +50,7 @@ const DataCustomerPage = () => {
       navigate('/kategoritiket', {
         state: {
           namaCustomer,
+          noTelpCustomer,
           tglInput,
           username,
         },
@@ -59,7 +60,7 @@ const DataCustomerPage = () => {
 
   return (
     <div className='w-full min-h-screen flex items-center justify-center bg-gray-100 p-4'>
-      <div className='bg-white rounded-2xl shadow-lg flex flex-col md:flex-row w-full max-w-2xl overflow-hidden'>
+      <div className='bg-white rounded-2xl shadow-lg flex flex-col md:flex-row w-full max-w-3xl overflow-hidden'>
         <div className='w-full p-8 space-y-10'>
           <h2 className='text-2xl font-bold text-gray-800'>
             Input Data Customer
@@ -72,7 +73,7 @@ const DataCustomerPage = () => {
                 type='text'
                 value={namaCustomer}
                 onChange={(e) => setNamaCustomer(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=' '
               />
               <label
@@ -94,7 +95,7 @@ const DataCustomerPage = () => {
                 type='text'
                 value={noTelpCustomer}
                 onChange={(e) => setNoTelpCustomer(e.target.value)}
-                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-69900 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
+                className='block px-2.5 pb-2.5 pt-4 pl-4 w-full text-xs text-gray-700 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-lime-600 focus:outline-none focus:ring-0 focus:border-lime-600 peer'
                 placeholder=''
               />
               <label
